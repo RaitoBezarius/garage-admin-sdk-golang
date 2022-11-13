@@ -25,7 +25,7 @@ go get golang.org/x/net/context
 Put the package under your project folder and add the following in import:
 
 ```golang
-import garage "git.deuxfleurs.fr/quentin/garage-admin-sdk-golang"
+import garage "git.deuxfleurs.fr/garage-sdk/garage-admin-sdk-golang"
 ```
 
 To use a proxy, set the environment variable `HTTP_PROXY`:

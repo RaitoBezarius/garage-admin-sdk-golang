@@ -1,4 +1,4 @@
-module git.deuxfleurs.fr/quentin/garage-admin-sdk-golang
+module git.deuxfleurs.fr/garage-sdk/garage-admin-sdk-golang
 
 go 1.13
 
