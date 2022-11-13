@@ -1,4 +1,4 @@
-module github.com/GIT_USER_ID/GIT_REPO_ID
+module git.deuxfleurs.fr/quentin/garage-admin-sdk-golang
 
 go 1.13
 
