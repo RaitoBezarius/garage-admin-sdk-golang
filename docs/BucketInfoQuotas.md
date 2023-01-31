@@ -4,8 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**MaxSize** | Pointer to **NullableInt32** |  | [optional] 
-**MaxObjects** | Pointer to **NullableInt32** |  | [optional] 
+**MaxSize** | Pointer to **NullableInt64** |  | [optional] 
+**MaxObjects** | Pointer to **NullableInt64** |  | [optional] 
 
 ## Methods
 
@@ -28,20 +28,20 @@ but it doesn't guarantee that properties required by API are set
 
 ### GetMaxSize
 
-`func (o *BucketInfoQuotas) GetMaxSize() int32`
+`func (o *BucketInfoQuotas) GetMaxSize() int64`
 
 GetMaxSize returns the MaxSize field if non-nil, zero value otherwise.
 
 ### GetMaxSizeOk
 
-`func (o *BucketInfoQuotas) GetMaxSizeOk() (*int32, bool)`
+`func (o *BucketInfoQuotas) GetMaxSizeOk() (*int64, bool)`
 
 GetMaxSizeOk returns a tuple with the MaxSize field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetMaxSize
 
-`func (o *BucketInfoQuotas) SetMaxSize(v int32)`
+`func (o *BucketInfoQuotas) SetMaxSize(v int64)`
 
 SetMaxSize sets MaxSize field to given value.
 
@@ -63,20 +63,20 @@ HasMaxSize returns a boolean if a field has been set.
 UnsetMaxSize ensures that no value is present for MaxSize, not even an explicit nil
 ### GetMaxObjects
 
-`func (o *BucketInfoQuotas) GetMaxObjects() int32`
+`func (o *BucketInfoQuotas) GetMaxObjects() int64`
 
 GetMaxObjects returns the MaxObjects field if non-nil, zero value otherwise.
 
 ### GetMaxObjectsOk
 
-`func (o *BucketInfoQuotas) GetMaxObjectsOk() (*int32, bool)`
+`func (o *BucketInfoQuotas) GetMaxObjectsOk() (*int64, bool)`
 
 GetMaxObjectsOk returns a tuple with the MaxObjects field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetMaxObjects
 
-`func (o *BucketInfoQuotas) SetMaxObjects(v int32)`
+`func (o *BucketInfoQuotas) SetMaxObjects(v int64)`
 
 SetMaxObjects sets MaxObjects field to given value.
 

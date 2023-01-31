@@ -9,8 +9,8 @@ Name | Type | Description | Notes
 **WebsiteAccess** | Pointer to **bool** |  | [optional] 
 **WebsiteConfig** | Pointer to [**NullableBucketInfoWebsiteConfig**](BucketInfoWebsiteConfig.md) |  | [optional] 
 **Keys** | Pointer to [**[]BucketKeyInfo**](BucketKeyInfo.md) |  | [optional] 
-**Objects** | Pointer to **int32** |  | [optional] 
-**Bytes** | Pointer to **int32** |  | [optional] 
+**Objects** | Pointer to **int64** |  | [optional] 
+**Bytes** | Pointer to **int64** |  | [optional] 
 **UnfinishedUploads** | Pointer to **int32** |  | [optional] 
 **Quotas** | Pointer to [**BucketInfoQuotas**](BucketInfoQuotas.md) |  | [optional] 
 
@@ -170,20 +170,20 @@ HasKeys returns a boolean if a field has been set.
 
 ### GetObjects
 
-`func (o *BucketInfo) GetObjects() int32`
+`func (o *BucketInfo) GetObjects() int64`
 
 GetObjects returns the Objects field if non-nil, zero value otherwise.
 
 ### GetObjectsOk
 
-`func (o *BucketInfo) GetObjectsOk() (*int32, bool)`
+`func (o *BucketInfo) GetObjectsOk() (*int64, bool)`
 
 GetObjectsOk returns a tuple with the Objects field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetObjects
 
-`func (o *BucketInfo) SetObjects(v int32)`
+`func (o *BucketInfo) SetObjects(v int64)`
 
 SetObjects sets Objects field to given value.
 
@@ -195,20 +195,20 @@ HasObjects returns a boolean if a field has been set.
 
 ### GetBytes
 
-`func (o *BucketInfo) GetBytes() int32`
+`func (o *BucketInfo) GetBytes() int64`
 
 GetBytes returns the Bytes field if non-nil, zero value otherwise.
 
 ### GetBytesOk
 
-`func (o *BucketInfo) GetBytesOk() (*int32, bool)`
+`func (o *BucketInfo) GetBytesOk() (*int64, bool)`
 
 GetBytesOk returns a tuple with the Bytes field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetBytes
 
-`func (o *BucketInfo) SetBytes(v int32)`
+`func (o *BucketInfo) SetBytes(v int64)`
 
 SetBytes sets Bytes field to given value.
 

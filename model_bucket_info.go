@@ -21,8 +21,8 @@ type BucketInfo struct {
 	WebsiteAccess *bool `json:"websiteAccess,omitempty"`
 	WebsiteConfig NullableBucketInfoWebsiteConfig `json:"websiteConfig,omitempty"`
 	Keys []BucketKeyInfo `json:"keys,omitempty"`
-	Objects *int32 `json:"objects,omitempty"`
-	Bytes *int32 `json:"bytes,omitempty"`
+	Objects *int64 `json:"objects,omitempty"`
+	Bytes *int64 `json:"bytes,omitempty"`
 	UnfinishedUploads *int32 `json:"unfinishedUploads,omitempty"`
 	Quotas *BucketInfoQuotas `json:"quotas,omitempty"`
 }
@@ -215,9 +215,9 @@ func (o *BucketInfo) SetKeys(v []BucketKeyInfo) {
 }
 
 // GetObjects returns the Objects field value if set, zero value otherwise.
-func (o *BucketInfo) GetObjects() int32 {
+func (o *BucketInfo) GetObjects() int64 {
 	if o == nil || o.Objects == nil {
-		var ret int32
+		var ret int64
 		return ret
 	}
 	return *o.Objects
@@ -225,7 +225,7 @@ func (o *BucketInfo) GetObjects() int32 {
 
 // GetObjectsOk returns a tuple with the Objects field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *BucketInfo) GetObjectsOk() (*int32, bool) {
+func (o *BucketInfo) GetObjectsOk() (*int64, bool) {
 	if o == nil || o.Objects == nil {
 		return nil, false
 	}
@@ -241,15 +241,15 @@ func (o *BucketInfo) HasObjects() bool {
 	return false
 }
 
-// SetObjects gets a reference to the given int32 and assigns it to the Objects field.
-func (o *BucketInfo) SetObjects(v int32) {
+// SetObjects gets a reference to the given int64 and assigns it to the Objects field.
+func (o *BucketInfo) SetObjects(v int64) {
 	o.Objects = &v
 }
 
 // GetBytes returns the Bytes field value if set, zero value otherwise.
-func (o *BucketInfo) GetBytes() int32 {
+func (o *BucketInfo) GetBytes() int64 {
 	if o == nil || o.Bytes == nil {
-		var ret int32
+		var ret int64
 		return ret
 	}
 	return *o.Bytes
@@ -257,7 +257,7 @@ func (o *BucketInfo) GetBytes() int32 {
 
 // GetBytesOk returns a tuple with the Bytes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *BucketInfo) GetBytesOk() (*int32, bool) {
+func (o *BucketInfo) GetBytesOk() (*int64, bool) {
 	if o == nil || o.Bytes == nil {
 		return nil, false
 	}
@@ -273,8 +273,8 @@ func (o *BucketInfo) HasBytes() bool {
 	return false
 }
 
-// SetBytes gets a reference to the given int32 and assigns it to the Bytes field.
-func (o *BucketInfo) SetBytes(v int32) {
+// SetBytes gets a reference to the given int64 and assigns it to the Bytes field.
+func (o *BucketInfo) SetBytes(v int64) {
 	o.Bytes = &v
 }
 

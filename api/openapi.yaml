@@ -1060,9 +1060,11 @@ components:
           type: array
         objects:
           example: 14827
+          format: int64
           type: integer
         bytes:
           example: 13189855625
+          format: int64
           type: integer
         unfinishedUploads:
           example: 0
@@ -1307,9 +1309,11 @@ components:
       properties:
         maxSize:
           example: 19029801
+          format: int64
           nullable: true
           type: integer
         maxObjects:
+          format: int64
           nullable: true
           type: integer
           example: null
@@ -1425,10 +1429,12 @@ components:
         maxObjects: 6
       properties:
         maxSize:
+          format: int64
           nullable: true
           type: integer
           example: null
         maxObjects:
+          format: int64
           nullable: true
           type: integer
           example: null

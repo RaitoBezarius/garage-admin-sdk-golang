@@ -16,8 +16,8 @@ import (
 
 // BucketInfoQuotas struct for BucketInfoQuotas
 type BucketInfoQuotas struct {
-	MaxSize NullableInt32 `json:"maxSize,omitempty"`
-	MaxObjects NullableInt32 `json:"maxObjects,omitempty"`
+	MaxSize NullableInt64 `json:"maxSize,omitempty"`
+	MaxObjects NullableInt64 `json:"maxObjects,omitempty"`
 }
 
 // NewBucketInfoQuotas instantiates a new BucketInfoQuotas object
@@ -38,9 +38,9 @@ func NewBucketInfoQuotasWithDefaults() *BucketInfoQuotas {
 }
 
 // GetMaxSize returns the MaxSize field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *BucketInfoQuotas) GetMaxSize() int32 {
+func (o *BucketInfoQuotas) GetMaxSize() int64 {
 	if o == nil || o.MaxSize.Get() == nil {
-		var ret int32
+		var ret int64
 		return ret
 	}
 	return *o.MaxSize.Get()
@@ -49,7 +49,7 @@ func (o *BucketInfoQuotas) GetMaxSize() int32 {
 // GetMaxSizeOk returns a tuple with the MaxSize field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *BucketInfoQuotas) GetMaxSizeOk() (*int32, bool) {
+func (o *BucketInfoQuotas) GetMaxSizeOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -65,8 +65,8 @@ func (o *BucketInfoQuotas) HasMaxSize() bool {
 	return false
 }
 
-// SetMaxSize gets a reference to the given NullableInt32 and assigns it to the MaxSize field.
-func (o *BucketInfoQuotas) SetMaxSize(v int32) {
+// SetMaxSize gets a reference to the given NullableInt64 and assigns it to the MaxSize field.
+func (o *BucketInfoQuotas) SetMaxSize(v int64) {
 	o.MaxSize.Set(&v)
 }
 // SetMaxSizeNil sets the value for MaxSize to be an explicit nil
@@ -80,9 +80,9 @@ func (o *BucketInfoQuotas) UnsetMaxSize() {
 }
 
 // GetMaxObjects returns the MaxObjects field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *BucketInfoQuotas) GetMaxObjects() int32 {
+func (o *BucketInfoQuotas) GetMaxObjects() int64 {
 	if o == nil || o.MaxObjects.Get() == nil {
-		var ret int32
+		var ret int64
 		return ret
 	}
 	return *o.MaxObjects.Get()
@@ -91,7 +91,7 @@ func (o *BucketInfoQuotas) GetMaxObjects() int32 {
 // GetMaxObjectsOk returns a tuple with the MaxObjects field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *BucketInfoQuotas) GetMaxObjectsOk() (*int32, bool) {
+func (o *BucketInfoQuotas) GetMaxObjectsOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -107,8 +107,8 @@ func (o *BucketInfoQuotas) HasMaxObjects() bool {
 	return false
 }
 
-// SetMaxObjects gets a reference to the given NullableInt32 and assigns it to the MaxObjects field.
-func (o *BucketInfoQuotas) SetMaxObjects(v int32) {
+// SetMaxObjects gets a reference to the given NullableInt64 and assigns it to the MaxObjects field.
+func (o *BucketInfoQuotas) SetMaxObjects(v int64) {
 	o.MaxObjects.Set(&v)
 }
 // SetMaxObjectsNil sets the value for MaxObjects to be an explicit nil
