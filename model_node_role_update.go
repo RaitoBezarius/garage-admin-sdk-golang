@@ -14,35 +14,68 @@ import (
 	"encoding/json"
 )
 
-// NodeClusterInfo struct for NodeClusterInfo
-type NodeClusterInfo struct {
+// NodeRoleUpdate struct for NodeRoleUpdate
+type NodeRoleUpdate struct {
+	Id *string `json:"id,omitempty"`
 	Zone string `json:"zone"`
-	Capacity NullableInt32 `json:"capacity,omitempty"`
-	// User defined tags, put whatever makes sense for you, these tags are not interpreted by Garage 
+	Capacity NullableInt32 `json:"capacity"`
 	Tags []string `json:"tags"`
 }
 
-// NewNodeClusterInfo instantiates a new NodeClusterInfo object
+// NewNodeRoleUpdate instantiates a new NodeRoleUpdate object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewNodeClusterInfo(zone string, tags []string) *NodeClusterInfo {
-	this := NodeClusterInfo{}
+func NewNodeRoleUpdate(zone string, capacity NullableInt32, tags []string) *NodeRoleUpdate {
+	this := NodeRoleUpdate{}
 	this.Zone = zone
+	this.Capacity = capacity
 	this.Tags = tags
 	return &this
 }
 
-// NewNodeClusterInfoWithDefaults instantiates a new NodeClusterInfo object
+// NewNodeRoleUpdateWithDefaults instantiates a new NodeRoleUpdate object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewNodeClusterInfoWithDefaults() *NodeClusterInfo {
-	this := NodeClusterInfo{}
+func NewNodeRoleUpdateWithDefaults() *NodeRoleUpdate {
+	this := NodeRoleUpdate{}
 	return &this
 }
 
+// GetId returns the Id field value if set, zero value otherwise.
+func (o *NodeRoleUpdate) GetId() string {
+	if o == nil || o.Id == nil {
+		var ret string
+		return ret
+	}
+	return *o.Id
+}
+
+// GetIdOk returns a tuple with the Id field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *NodeRoleUpdate) GetIdOk() (*string, bool) {
+	if o == nil || o.Id == nil {
+		return nil, false
+	}
+	return o.Id, true
+}
+
+// HasId returns a boolean if a field has been set.
+func (o *NodeRoleUpdate) HasId() bool {
+	if o != nil && o.Id != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetId gets a reference to the given string and assigns it to the Id field.
+func (o *NodeRoleUpdate) SetId(v string) {
+	o.Id = &v
+}
+
 // GetZone returns the Zone field value
-func (o *NodeClusterInfo) GetZone() string {
+func (o *NodeRoleUpdate) GetZone() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -53,7 +86,7 @@ func (o *NodeClusterInfo) GetZone() string {
 
 // GetZoneOk returns a tuple with the Zone field value
 // and a boolean to check if the value has been set.
-func (o *NodeClusterInfo) GetZoneOk() (*string, bool) {
+func (o *NodeRoleUpdate) GetZoneOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -61,54 +94,38 @@ func (o *NodeClusterInfo) GetZoneOk() (*string, bool) {
 }
 
 // SetZone sets field value
-func (o *NodeClusterInfo) SetZone(v string) {
+func (o *NodeRoleUpdate) SetZone(v string) {
 	o.Zone = v
 }
 
-// GetCapacity returns the Capacity field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *NodeClusterInfo) GetCapacity() int32 {
+// GetCapacity returns the Capacity field value
+// If the value is explicit nil, the zero value for int32 will be returned
+func (o *NodeRoleUpdate) GetCapacity() int32 {
 	if o == nil || o.Capacity.Get() == nil {
 		var ret int32
 		return ret
 	}
+
 	return *o.Capacity.Get()
 }
 
-// GetCapacityOk returns a tuple with the Capacity field value if set, nil otherwise
+// GetCapacityOk returns a tuple with the Capacity field value
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *NodeClusterInfo) GetCapacityOk() (*int32, bool) {
+func (o *NodeRoleUpdate) GetCapacityOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
 	return o.Capacity.Get(), o.Capacity.IsSet()
 }
 
-// HasCapacity returns a boolean if a field has been set.
-func (o *NodeClusterInfo) HasCapacity() bool {
-	if o != nil && o.Capacity.IsSet() {
-		return true
-	}
-
-	return false
-}
-
-// SetCapacity gets a reference to the given NullableInt32 and assigns it to the Capacity field.
-func (o *NodeClusterInfo) SetCapacity(v int32) {
+// SetCapacity sets field value
+func (o *NodeRoleUpdate) SetCapacity(v int32) {
 	o.Capacity.Set(&v)
-}
-// SetCapacityNil sets the value for Capacity to be an explicit nil
-func (o *NodeClusterInfo) SetCapacityNil() {
-	o.Capacity.Set(nil)
-}
-
-// UnsetCapacity ensures that no value is present for Capacity, not even an explicit nil
-func (o *NodeClusterInfo) UnsetCapacity() {
-	o.Capacity.Unset()
 }
 
 // GetTags returns the Tags field value
-func (o *NodeClusterInfo) GetTags() []string {
+func (o *NodeRoleUpdate) GetTags() []string {
 	if o == nil {
 		var ret []string
 		return ret
@@ -119,7 +136,7 @@ func (o *NodeClusterInfo) GetTags() []string {
 
 // GetTagsOk returns a tuple with the Tags field value
 // and a boolean to check if the value has been set.
-func (o *NodeClusterInfo) GetTagsOk() ([]string, bool) {
+func (o *NodeRoleUpdate) GetTagsOk() ([]string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -127,16 +144,19 @@ func (o *NodeClusterInfo) GetTagsOk() ([]string, bool) {
 }
 
 // SetTags sets field value
-func (o *NodeClusterInfo) SetTags(v []string) {
+func (o *NodeRoleUpdate) SetTags(v []string) {
 	o.Tags = v
 }
 
-func (o NodeClusterInfo) MarshalJSON() ([]byte, error) {
+func (o NodeRoleUpdate) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
+	if o.Id != nil {
+		toSerialize["id"] = o.Id
+	}
 	if true {
 		toSerialize["zone"] = o.Zone
 	}
-	if o.Capacity.IsSet() {
+	if true {
 		toSerialize["capacity"] = o.Capacity.Get()
 	}
 	if true {
@@ -145,38 +165,38 @@ func (o NodeClusterInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-type NullableNodeClusterInfo struct {
-	value *NodeClusterInfo
+type NullableNodeRoleUpdate struct {
+	value *NodeRoleUpdate
 	isSet bool
 }
 
-func (v NullableNodeClusterInfo) Get() *NodeClusterInfo {
+func (v NullableNodeRoleUpdate) Get() *NodeRoleUpdate {
 	return v.value
 }
 
-func (v *NullableNodeClusterInfo) Set(val *NodeClusterInfo) {
+func (v *NullableNodeRoleUpdate) Set(val *NodeRoleUpdate) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableNodeClusterInfo) IsSet() bool {
+func (v NullableNodeRoleUpdate) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableNodeClusterInfo) Unset() {
+func (v *NullableNodeRoleUpdate) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableNodeClusterInfo(val *NodeClusterInfo) *NullableNodeClusterInfo {
-	return &NullableNodeClusterInfo{value: val, isSet: true}
+func NewNullableNodeRoleUpdate(val *NodeRoleUpdate) *NullableNodeRoleUpdate {
+	return &NullableNodeRoleUpdate{value: val, isSet: true}
 }
 
-func (v NullableNodeClusterInfo) MarshalJSON() ([]byte, error) {
+func (v NullableNodeRoleUpdate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableNodeClusterInfo) UnmarshalJSON(src []byte) error {
+func (v *NullableNodeRoleUpdate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

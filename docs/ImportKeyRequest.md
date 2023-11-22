@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Name** | **string** |  | 
+**Name** | **NullableString** |  | 
 **AccessKeyId** | **string** |  | 
 **SecretAccessKey** | **string** |  | 
 
@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 
 ### NewImportKeyRequest
 
-`func NewImportKeyRequest(name string, accessKeyId string, secretAccessKey string, ) *ImportKeyRequest`
+`func NewImportKeyRequest(name NullableString, accessKeyId string, secretAccessKey string, ) *ImportKeyRequest`
 
 NewImportKeyRequest instantiates a new ImportKeyRequest object
 This constructor will assign default values to properties that have it defined,
@@ -47,6 +47,16 @@ and a boolean to check if the value has been set.
 SetName sets Name field to given value.
 
 
+### SetNameNil
+
+`func (o *ImportKeyRequest) SetNameNil(b bool)`
+
+ SetNameNil sets the value for Name to be an explicit nil
+
+### UnsetName
+`func (o *ImportKeyRequest) UnsetName()`
+
+UnsetName ensures that no value is present for Name, not even an explicit nil
 ### GetAccessKeyId
 
 `func (o *ImportKeyRequest) GetAccessKeyId() string`

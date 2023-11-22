@@ -1,103 +1,124 @@
-# NodeClusterInfo
+# NodeRoleUpdate
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**Id** | Pointer to **string** |  | [optional] 
 **Zone** | **string** |  | 
-**Capacity** | Pointer to **NullableInt32** |  | [optional] 
-**Tags** | **[]string** | User defined tags, put whatever makes sense for you, these tags are not interpreted by Garage  | 
+**Capacity** | **NullableInt32** |  | 
+**Tags** | **[]string** |  | 
 
 ## Methods
 
-### NewNodeClusterInfo
+### NewNodeRoleUpdate
 
-`func NewNodeClusterInfo(zone string, tags []string, ) *NodeClusterInfo`
+`func NewNodeRoleUpdate(zone string, capacity NullableInt32, tags []string, ) *NodeRoleUpdate`
 
-NewNodeClusterInfo instantiates a new NodeClusterInfo object
+NewNodeRoleUpdate instantiates a new NodeRoleUpdate object
 This constructor will assign default values to properties that have it defined,
 and makes sure properties required by API are set, but the set of arguments
 will change when the set of required properties is changed
 
-### NewNodeClusterInfoWithDefaults
+### NewNodeRoleUpdateWithDefaults
 
-`func NewNodeClusterInfoWithDefaults() *NodeClusterInfo`
+`func NewNodeRoleUpdateWithDefaults() *NodeRoleUpdate`
 
-NewNodeClusterInfoWithDefaults instantiates a new NodeClusterInfo object
+NewNodeRoleUpdateWithDefaults instantiates a new NodeRoleUpdate object
 This constructor will only assign default values to properties that have it defined,
 but it doesn't guarantee that properties required by API are set
 
+### GetId
+
+`func (o *NodeRoleUpdate) GetId() string`
+
+GetId returns the Id field if non-nil, zero value otherwise.
+
+### GetIdOk
+
+`func (o *NodeRoleUpdate) GetIdOk() (*string, bool)`
+
+GetIdOk returns a tuple with the Id field if it's non-nil, zero value otherwise
+and a boolean to check if the value has been set.
+
+### SetId
+
+`func (o *NodeRoleUpdate) SetId(v string)`
+
+SetId sets Id field to given value.
+
+### HasId
+
+`func (o *NodeRoleUpdate) HasId() bool`
+
+HasId returns a boolean if a field has been set.
+
 ### GetZone
 
-`func (o *NodeClusterInfo) GetZone() string`
+`func (o *NodeRoleUpdate) GetZone() string`
 
 GetZone returns the Zone field if non-nil, zero value otherwise.
 
 ### GetZoneOk
 
-`func (o *NodeClusterInfo) GetZoneOk() (*string, bool)`
+`func (o *NodeRoleUpdate) GetZoneOk() (*string, bool)`
 
 GetZoneOk returns a tuple with the Zone field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetZone
 
-`func (o *NodeClusterInfo) SetZone(v string)`
+`func (o *NodeRoleUpdate) SetZone(v string)`
 
 SetZone sets Zone field to given value.
 
 
 ### GetCapacity
 
-`func (o *NodeClusterInfo) GetCapacity() int32`
+`func (o *NodeRoleUpdate) GetCapacity() int32`
 
 GetCapacity returns the Capacity field if non-nil, zero value otherwise.
 
 ### GetCapacityOk
 
-`func (o *NodeClusterInfo) GetCapacityOk() (*int32, bool)`
+`func (o *NodeRoleUpdate) GetCapacityOk() (*int32, bool)`
 
 GetCapacityOk returns a tuple with the Capacity field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetCapacity
 
-`func (o *NodeClusterInfo) SetCapacity(v int32)`
+`func (o *NodeRoleUpdate) SetCapacity(v int32)`
 
 SetCapacity sets Capacity field to given value.
 
-### HasCapacity
-
-`func (o *NodeClusterInfo) HasCapacity() bool`
-
-HasCapacity returns a boolean if a field has been set.
 
 ### SetCapacityNil
 
-`func (o *NodeClusterInfo) SetCapacityNil(b bool)`
+`func (o *NodeRoleUpdate) SetCapacityNil(b bool)`
 
  SetCapacityNil sets the value for Capacity to be an explicit nil
 
 ### UnsetCapacity
-`func (o *NodeClusterInfo) UnsetCapacity()`
+`func (o *NodeRoleUpdate) UnsetCapacity()`
 
 UnsetCapacity ensures that no value is present for Capacity, not even an explicit nil
 ### GetTags
 
-`func (o *NodeClusterInfo) GetTags() []string`
+`func (o *NodeRoleUpdate) GetTags() []string`
 
 GetTags returns the Tags field if non-nil, zero value otherwise.
 
 ### GetTagsOk
 
-`func (o *NodeClusterInfo) GetTagsOk() (*[]string, bool)`
+`func (o *NodeRoleUpdate) GetTagsOk() (*[]string, bool)`
 
 GetTagsOk returns a tuple with the Tags field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetTags
 
-`func (o *NodeClusterInfo) SetTags(v []string)`
+`func (o *NodeRoleUpdate) SetTags(v []string)`
 
 SetTags sets Tags field to given value.
 

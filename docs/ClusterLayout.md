@@ -5,14 +5,14 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Version** | **int32** |  | 
-**Roles** | [**map[string]NodeClusterInfo**](NodeClusterInfo.md) |  | 
-**StagedRoleChanges** | [**map[string]NodeClusterInfo**](NodeClusterInfo.md) |  | 
+**Roles** | [**[]NodeClusterInfo**](NodeClusterInfo.md) |  | 
+**StagedRoleChanges** | [**[]NodeRoleChange**](NodeRoleChange.md) |  | 
 
 ## Methods
 
 ### NewClusterLayout
 
-`func NewClusterLayout(version int32, roles map[string]NodeClusterInfo, stagedRoleChanges map[string]NodeClusterInfo, ) *ClusterLayout`
+`func NewClusterLayout(version int32, roles []NodeClusterInfo, stagedRoleChanges []NodeRoleChange, ) *ClusterLayout`
 
 NewClusterLayout instantiates a new ClusterLayout object
 This constructor will assign default values to properties that have it defined,
@@ -49,40 +49,40 @@ SetVersion sets Version field to given value.
 
 ### GetRoles
 
-`func (o *ClusterLayout) GetRoles() map[string]NodeClusterInfo`
+`func (o *ClusterLayout) GetRoles() []NodeClusterInfo`
 
 GetRoles returns the Roles field if non-nil, zero value otherwise.
 
 ### GetRolesOk
 
-`func (o *ClusterLayout) GetRolesOk() (*map[string]NodeClusterInfo, bool)`
+`func (o *ClusterLayout) GetRolesOk() (*[]NodeClusterInfo, bool)`
 
 GetRolesOk returns a tuple with the Roles field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetRoles
 
-`func (o *ClusterLayout) SetRoles(v map[string]NodeClusterInfo)`
+`func (o *ClusterLayout) SetRoles(v []NodeClusterInfo)`
 
 SetRoles sets Roles field to given value.
 
 
 ### GetStagedRoleChanges
 
-`func (o *ClusterLayout) GetStagedRoleChanges() map[string]NodeClusterInfo`
+`func (o *ClusterLayout) GetStagedRoleChanges() []NodeRoleChange`
 
 GetStagedRoleChanges returns the StagedRoleChanges field if non-nil, zero value otherwise.
 
 ### GetStagedRoleChangesOk
 
-`func (o *ClusterLayout) GetStagedRoleChangesOk() (*map[string]NodeClusterInfo, bool)`
+`func (o *ClusterLayout) GetStagedRoleChangesOk() (*[]NodeRoleChange, bool)`
 
 GetStagedRoleChangesOk returns a tuple with the StagedRoleChanges field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetStagedRoleChanges
 
-`func (o *ClusterLayout) SetStagedRoleChanges(v map[string]NodeClusterInfo)`
+`func (o *ClusterLayout) SetStagedRoleChanges(v []NodeRoleChange)`
 
 SetStagedRoleChanges sets StagedRoleChanges field to given value.
 

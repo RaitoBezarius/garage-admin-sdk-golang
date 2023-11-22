@@ -4,11 +4,11 @@ info:
     Administrate your Garage cluster programatically, including status, layout, keys, buckets, and maintainance tasks.
 
     *Disclaimer: The API is not stable yet, hence its v0 tag. The API can change at any time, and changes can include breaking backward compatibility. Read the changelog and upgrade your scripts before upgrading. Additionnaly, this specification is very early stage and can contain bugs, especially on error return codes/types that are not tested yet. Do not expect a well finished and polished product!*
-  title: Garage Administration API v0+garage-v0.8.0
-  version: v0.8.0
+  title: Garage Administration API v0+garage-v0.9.0
+  version: v0.9.0
 servers:
 - description: A local server
-  url: http://localhost:3903/v0/
+  url: http://localhost:3903/v1/
 security:
 - bearerAuth: []
 paths:
@@ -20,6 +20,8 @@ paths:
          - Live nodes
          - Currently configured cluster layout
          - Staged changes to the cluster layout
+
+        *Capacity is given in bytes*
       operationId: GetNodes
       responses:
         "500":
@@ -79,8 +81,8 @@ paths:
     get:
       description: "Returns the cluster's current layout, including:\n  - Currently\
         \ configured cluster layout\n  - Staged changes to the cluster layout\n  \n\
-        *The info returned by this endpoint is a subset of the info returned by `GET\
-        \ /status`.*\n"
+        *Capacity is given in bytes*\n*The info returned by this endpoint is a subset\
+        \ of the info returned by `GET /status`.*\n"
       operationId: GetLayout
       responses:
         "500":
@@ -101,25 +103,32 @@ paths:
     post:
       description: |
         Send modifications to the cluster layout. These modifications will be included in the staged role changes, visible in subsequent calls of `GET /layout`. Once the set of staged changes is satisfactory, the user may call `POST /layout/apply` to apply the changed changes, or `POST /layout/revert` to clear all of the staged changes in the layout.
-        Note that setting the capacity to `null` will configure the node as a gateway.
+
+        Setting the capacity to `null` will configure the node as a gateway.
+        Otherwise, capacity must be now set in bytes (before Garage 0.9 it was arbitrary weights).
+        For example to declare 100GB, you must set `capacity: 100000000000`.
+
+        Garage uses internally the International System of Units (SI), it assumes that 1kB = 1000 bytes, and displays storage as kB, MB, GB (and not KiB, MiB, GiB that assume 1KiB = 1024 bytes).
       operationId: AddLayout
       requestBody:
         content:
           application/json:
             schema:
-              additionalProperties:
-                $ref: '#/components/schemas/NodeClusterInfo'
               example:
-                e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-                  zone: geneva
-                  capacity: 4
-                  tags:
-                  - gateway
-                "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff": null
-              type: object
+              - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+                zone: geneva
+                capacity: 100000000000
+                tags:
+                - gateway
+              - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+                remove: true
+              items:
+                $ref: '#/components/schemas/NodeRoleChange'
+              type: array
         description: |
-          To add a new node to the layout or to change the configuration of an existing node, simply set the values you want.
-          To remove a node, set it to `null` instead of passing a configuration object.
+          To add a new node to the layout or to change the configuration of an existing node, simply set the values you want (`zone`, `capacity`, and `tags`).
+          To remove a node, simply pass the `remove: true` field.
+          This logic is represented in OpenAPI with a "One Of" object.
 
           Contrary to the CLI that may update only a subset of the fields capacity, zone and tags, when calling this API all of these values must be specified.
         required: true
@@ -130,6 +139,10 @@ paths:
         "400":
           description: Invalid syntax or requested change
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterLayout'
           description: The layout modification has been correctly staged
       summary: Send modifications to the cluster layout
       tags:
@@ -138,6 +151,8 @@ paths:
     post:
       description: |
         Applies to the cluster the layout changes currently registered as staged layout changes.
+
+        *Note: do not try to parse the `message` field of the response, it is given as an array of string specifically because its format is not stable.*
       operationId: ApplyLayout
       requestBody:
         content:
@@ -154,6 +169,10 @@ paths:
         "400":
           description: Invalid syntax or requested change
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyLayout_200_response'
           description: "The staged layout has been applied as the new layout of the\
             \ cluster, a rebalance has been triggered."
       summary: Apply staged layout
@@ -220,7 +239,10 @@ paths:
             schema:
               $ref: '#/components/schemas/AddKey_request'
         description: |
-          "You can set a friendly name for this key, send an empty string instead"
+          You can set a friendly name for this key.
+          If you don't want to, you can set the name to `null`.
+
+          *Note: the secret key is returned in the response.*
         required: true
       responses:
         "500":
@@ -263,8 +285,10 @@ paths:
       tags:
       - Key
     get:
-      description: |
-        Return information about a specific key and return its information
+      description: "Return information about a specific key like its identifiers,\
+        \ its permissions and buckets on which it has permissions. \n\nFor confidentiality\
+        \ reasons, the secret key is not returned by default: you must pass the `showSecretKey`\
+        \ query parameter to get it.\n"
       operationId: GetKey
       parameters:
       - description: The exact API access key generated by Garage
@@ -276,6 +300,16 @@ paths:
         schema:
           type: string
         style: simple
+      - description: Wether or not the secret key should be returned in the response
+        example: true
+        explode: true
+        in: query
+        name: showSecretKey
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
       responses:
         "500":
           description: The server can not handle your request. Check your connectivity
@@ -293,6 +327,8 @@ paths:
     post:
       description: |
         Updates information about the specified API access key.
+
+        *Note: the secret key is not returned in the response, `null` is sent instead.*
       operationId: UpdateKey
       parameters:
       - description: The exact API access key generated by Garage
@@ -331,7 +367,9 @@ paths:
   /key?search={pattern}:
     get:
       description: |
-        Find the first key matching the given pattern based on its identifier aor friendly name and return its information.
+        Find the first key matching the given pattern based on its identifier or friendly name and return its information.
+
+        For confidentiality reasons, the secret key is not returned by default: you must pass the `showSecretKey` query parameter to get it.
       operationId: SearchKey
       parameters:
       - description: A pattern (beginning or full string) corresponding to a key identifier
@@ -344,6 +382,16 @@ paths:
         schema:
           type: string
         style: simple
+      - description: Wether or not the secret key should be returned in the response
+        example: true
+        explode: true
+        in: query
+        name: showSecretKey
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
       responses:
         "500":
           description: The server can not handle your request. Check your connectivity
@@ -519,7 +567,7 @@ paths:
       - Bucket
     put:
       description: |
-        All fields (`websiteAccess` and `quotas`) are optionnal.
+        All fields (`websiteAccess` and `quotas`) are optional.
         If they are present, the corresponding modifications are applied to the bucket, otherwise nothing is changed.
 
         In `websiteAccess`: if `enabled` is `true`, `indexDocument` must be specified.
@@ -846,13 +894,16 @@ components:
   schemas:
     NodeNetworkInfo:
       properties:
+        id:
+          example: 6a8e08af2aab1083ebab9b22165ea8b5b9d333b60a39ecd504e85cc1f432c36f
+          type: string
         addr:
           example: 10.0.0.11:3901
           type: string
-        is_up:
+        isUp:
           example: true
           type: boolean
-        last_seen_secs_ago:
+        lastSeenSecsAgo:
           example: 9
           nullable: true
           type: integer
@@ -862,16 +913,10 @@ components:
       required:
       - addr
       - hostname
-      - is_up
-      - last_seen_secs_ago
+      - isUp
+      - lastSeenSecsAgo
       type: object
     NodeClusterInfo:
-      example:
-        zone: dc1
-        capacity: 4
-        tags:
-        - gateway
-        - fast
       properties:
         zone:
           example: dc1
@@ -890,6 +935,45 @@ components:
             type: string
           type: array
       required:
+      - id
+      - tags
+      - zone
+      type: object
+    NodeRoleChange:
+      oneOf:
+      - $ref: '#/components/schemas/NodeRoleRemove'
+      - $ref: '#/components/schemas/NodeRoleUpdate'
+    NodeRoleRemove:
+      properties:
+        id:
+          example: 6a8e08af2aab1083ebab9b22165ea8b5b9d333b60a39ecd504e85cc1f432c36f
+          type: string
+        remove:
+          example: true
+          type: boolean
+      required:
+      - remove
+      type: object
+    NodeRoleUpdate:
+      properties:
+        id:
+          example: 6a8e08af2aab1083ebab9b22165ea8b5b9d333b60a39ecd504e85cc1f432c36f
+          type: string
+        zone:
+          example: dc1
+          type: string
+        capacity:
+          example: 150000000000
+          nullable: true
+          type: integer
+        tags:
+          example:
+          - gateway
+          - fast
+          items:
+            type: string
+          type: array
+      required:
       - capacity
       - tags
       - zone
@@ -897,54 +981,58 @@ components:
     ClusterLayout:
       example:
         roles:
-          ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-            zone: madrid
-            capacity: 3
-            tags:
-            - fast
-            - amd64
-          "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-            zone: geneva
-            capacity: 7
-            tags:
-            - arm64
+        - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+          zone: madrid
+          capacity: 300000000000
+          tags:
+          - fast
+          - amd64
+        - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+          zone: geneva
+          capacity: 700000000000
+          tags:
+          - arm64
         stagedRoleChanges:
-          e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-            zone: geneva
-            capacity: 4
-            tags:
-            - gateway
+        - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+          zone: geneva
+          capacity: 800000000000
+          tags:
+          - gateway
+        - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+          remove: true
         version: 12
       properties:
         version:
           example: 12
           type: integer
         roles:
-          additionalProperties:
-            $ref: '#/components/schemas/NodeClusterInfo'
           example:
-            ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-              zone: madrid
-              capacity: 3
-              tags:
-              - fast
-              - amd64
-            "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-              zone: geneva
-              capacity: 7
-              tags:
-              - arm64
-          type: object
+          - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+            zone: madrid
+            capacity: 300000000000
+            tags:
+            - fast
+            - amd64
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            zone: geneva
+            capacity: 700000000000
+            tags:
+            - arm64
+          items:
+            $ref: '#/components/schemas/NodeClusterInfo'
+          type: array
         stagedRoleChanges:
-          additionalProperties:
-            $ref: '#/components/schemas/NodeClusterInfo'
           example:
-            e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-              zone: geneva
-              capacity: 4
-              tags:
-              - gateway
-          type: object
+          - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+            zone: geneva
+            capacity: 800000000000
+            tags:
+            - gateway
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            remove: true
+          items:
+            $ref: '#/components/schemas/NodeRoleChange'
+          type: array
       required:
       - roles
       - stagedRoleChanges
@@ -997,6 +1085,7 @@ components:
           type: string
         secretAccessKey:
           example: b892c0665f0ada8a4755dae98baa3b133590e11dae3bcc1f9d769d67f16c3835
+          nullable: true
           type: string
         permissions:
           $ref: '#/components/schemas/KeyInfo_permissions'
@@ -1100,76 +1189,113 @@ components:
       example:
         layout:
           roles:
-            ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-              zone: madrid
-              capacity: 3
-              tags:
-              - fast
-              - amd64
-            "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-              zone: geneva
-              capacity: 7
-              tags:
-              - arm64
+          - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+            zone: madrid
+            capacity: 300000000000
+            tags:
+            - fast
+            - amd64
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            zone: geneva
+            capacity: 700000000000
+            tags:
+            - arm64
           stagedRoleChanges:
-            e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-              zone: geneva
-              capacity: 4
-              tags:
-              - gateway
+          - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+            zone: geneva
+            capacity: 800000000000
+            tags:
+            - gateway
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            remove: true
           version: 12
         node: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+        dbEngine: LMDB (using Heed crate)
+        rustVersion: 1.68.0
         knownNodes:
-          ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-            addr: 10.0.0.11:3901
-            is_up: true
-            last_seen_secs_ago: 9
-            hostname: orion
-          "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-            addr: 10.0.0.12:3901
-            is_up: true
-            last_seen_secs_ago: 13
-            hostname: pegasus
-          e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-            addr: 10.0.0.13:3901
-            is_up: true
-            last_seen_secs_ago: 2
-            hostname: neptune
-        garageVersion: v0.7.3
+        - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+          addr: 10.0.0.11:3901
+          isUp: true
+          lastSeenSecsAgo: 9
+          hostname: orion
+        - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+          addr: 10.0.0.12:3901
+          isUp: true
+          lastSeenSecsAgo: 13
+          hostname: pegasus
+        - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+          addr: 10.0.0.13:3901
+          isUp: true
+          lastSeenSecsAgo: 2
+          hostname: neptune
+        garageFeatures:
+        - k2v
+        - sled
+        - lmdb
+        - sqlite
+        - consul-discovery
+        - kubernetes-discovery
+        - metrics
+        - telemetry-otlp
+        - bundled-libs
+        garageVersion: v0.9.0
       properties:
         node:
           example: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
           type: string
         garageVersion:
-          example: v0.7.3
+          example: v0.9.0
+          type: string
+        garageFeatures:
+          example:
+          - k2v
+          - sled
+          - lmdb
+          - sqlite
+          - consul-discovery
+          - kubernetes-discovery
+          - metrics
+          - telemetry-otlp
+          - bundled-libs
+          items:
+            type: string
+          type: array
+        rustVersion:
+          example: 1.68.0
+          type: string
+        dbEngine:
+          example: LMDB (using Heed crate)
           type: string
         knownNodes:
-          additionalProperties:
-            $ref: '#/components/schemas/NodeNetworkInfo'
           example:
-            ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-              addr: 10.0.0.11:3901
-              is_up: true
-              last_seen_secs_ago: 9
-              hostname: orion
-            "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-              addr: 10.0.0.12:3901
-              is_up: true
-              last_seen_secs_ago: 13
-              hostname: pegasus
-            e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-              addr: 10.0.0.13:3901
-              is_up: true
-              last_seen_secs_ago: 2
-              hostname: neptune
-          type: object
+          - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+            addr: 10.0.0.11:3901
+            isUp: true
+            lastSeenSecsAgo: 9
+            hostname: orion
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            addr: 10.0.0.12:3901
+            isUp: true
+            lastSeenSecsAgo: 13
+            hostname: pegasus
+          - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+            addr: 10.0.0.13:3901
+            isUp: true
+            lastSeenSecsAgo: 2
+            hostname: neptune
+          items:
+            $ref: '#/components/schemas/NodeNetworkInfo'
+          type: array
         layout:
           $ref: '#/components/schemas/ClusterLayout'
       required:
+      - dbEngine
+      - garageFeatures
       - garageVersion
       - knownNodes
       - layout
       - node
+      - rustVersion
       type: object
     AddNode_200_response_inner:
       properties:
@@ -1180,6 +1306,76 @@ components:
           nullable: true
           type: string
           example: null
+      type: object
+    ApplyLayout_200_response:
+      example:
+        layout:
+          roles:
+          - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+            zone: madrid
+            capacity: 300000000000
+            tags:
+            - fast
+            - amd64
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            zone: geneva
+            capacity: 700000000000
+            tags:
+            - arm64
+          stagedRoleChanges:
+          - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+            zone: geneva
+            capacity: 800000000000
+            tags:
+            - gateway
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            remove: true
+          version: 12
+        message:
+        - ==== COMPUTATION OF A NEW PARTITION ASSIGNATION ====
+        - ""
+        - Partitions are replicated 1 times on at least 1 distinct zones.
+        - ""
+        - "Optimal partition size:                     419.4 MB (3 B in previous layout)"
+        - "Usable capacity / total cluster capacity:   107.4 GB / 107.4 GB (100.0\
+          \ %)"
+        - "Effective capacity (replication factor 1):  107.4 GB"
+        - ""
+        - A total of 0 new copies of partitions need to be transferred.
+        - ""
+        - |+
+          dc1                 Tags  Partitions        Capacity  Usable capacity
+            6a8e08af2aab1083  a,v   256 (0 new)       107.4 GB  107.4 GB (100.0%)
+            TOTAL                   256 (256 unique)  107.4 GB  107.4 GB (100.0%)
+
+      properties:
+        message:
+          example:
+          - ==== COMPUTATION OF A NEW PARTITION ASSIGNATION ====
+          - ""
+          - Partitions are replicated 1 times on at least 1 distinct zones.
+          - ""
+          - "Optimal partition size:                     419.4 MB (3 B in previous\
+            \ layout)"
+          - "Usable capacity / total cluster capacity:   107.4 GB / 107.4 GB (100.0\
+            \ %)"
+          - "Effective capacity (replication factor 1):  107.4 GB"
+          - ""
+          - A total of 0 new copies of partitions need to be transferred.
+          - ""
+          - |+
+            dc1                 Tags  Partitions        Capacity  Usable capacity
+              6a8e08af2aab1083  a,v   256 (0 new)       107.4 GB  107.4 GB (100.0%)
+              TOTAL                   256 (256 unique)  107.4 GB  107.4 GB (100.0%)
+
+          items:
+            type: string
+          type: array
+        layout:
+          $ref: '#/components/schemas/ClusterLayout'
+      required:
+      - layout
+      - message
       type: object
     ListKeys_200_response_inner:
       properties:
@@ -1194,6 +1390,7 @@ components:
       properties:
         name:
           example: test-key
+          nullable: true
           type: string
       type: object
     UpdateKey_request_allow:
@@ -1223,6 +1420,7 @@ components:
       properties:
         name:
           example: test-key
+          nullable: true
           type: string
         accessKeyId:
           example: GK31c2f218a2e44f485b94239e

@@ -1,6 +1,6 @@
 # \NodesApi
 
-All URIs are relative to *http://localhost:3903/v0*
+All URIs are relative to *http://localhost:3903/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------

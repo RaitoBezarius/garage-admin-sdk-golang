@@ -1,6 +1,6 @@
 # \LayoutApi
 
-All URIs are relative to *http://localhost:3903/v0*
+All URIs are relative to *http://localhost:3903/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -13,7 +13,7 @@ Method | HTTP request | Description
 
 ## AddLayout
 
-> AddLayout(ctx).RequestBody(requestBody).Execute()
+> ClusterLayout AddLayout(ctx).NodeRoleChange(nodeRoleChange).Execute()
 
 Send modifications to the cluster layout
 
@@ -32,15 +32,17 @@ import (
 )
 
 func main() {
-    requestBody := map[string]NodeClusterInfo{"key": *openapiclient.NewNodeClusterInfo("dc1", NullableInt32(4), []string{"Tags_example"})} // map[string]NodeClusterInfo | To add a new node to the layout or to change the configuration of an existing node, simply set the values you want. To remove a node, set it to `null` instead of passing a configuration object.  Contrary to the CLI that may update only a subset of the fields capacity, zone and tags, when calling this API all of these values must be specified. 
+    nodeRoleChange := []openapiclient.NodeRoleChange{openapiclient.NodeRoleChange{NodeRoleRemove: openapiclient.NewNodeRoleRemove(true)}} // []NodeRoleChange | To add a new node to the layout or to change the configuration of an existing node, simply set the values you want (`zone`, `capacity`, and `tags`). To remove a node, simply pass the `remove: true` field. This logic is represented in OpenAPI with a \"One Of\" object.  Contrary to the CLI that may update only a subset of the fields capacity, zone and tags, when calling this API all of these values must be specified. 
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.LayoutApi.AddLayout(context.Background()).RequestBody(requestBody).Execute()
+    resp, r, err := apiClient.LayoutApi.AddLayout(context.Background()).NodeRoleChange(nodeRoleChange).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `LayoutApi.AddLayout``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
+    // response from `AddLayout`: ClusterLayout
+    fmt.Fprintf(os.Stdout, "Response from `LayoutApi.AddLayout`: %v\n", resp)
 }
 ```
 
@@ -55,11 +57,11 @@ Other parameters are passed through a pointer to a apiAddLayoutRequest struct vi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **requestBody** | [**map[string]NodeClusterInfo**](NodeClusterInfo.md) | To add a new node to the layout or to change the configuration of an existing node, simply set the values you want. To remove a node, set it to &#x60;null&#x60; instead of passing a configuration object.  Contrary to the CLI that may update only a subset of the fields capacity, zone and tags, when calling this API all of these values must be specified.  | 
+ **nodeRoleChange** | [**[]NodeRoleChange**](NodeRoleChange.md) | To add a new node to the layout or to change the configuration of an existing node, simply set the values you want (&#x60;zone&#x60;, &#x60;capacity&#x60;, and &#x60;tags&#x60;). To remove a node, simply pass the &#x60;remove: true&#x60; field. This logic is represented in OpenAPI with a \&quot;One Of\&quot; object.  Contrary to the CLI that may update only a subset of the fields capacity, zone and tags, when calling this API all of these values must be specified.  | 
 
 ### Return type
 
- (empty response body)
+[**ClusterLayout**](ClusterLayout.md)
 
 ### Authorization
 
@@ -68,7 +70,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: application/json
-- **Accept**: Not defined
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -77,7 +79,7 @@ Name | Type | Description  | Notes
 
 ## ApplyLayout
 
-> ApplyLayout(ctx).LayoutVersion(layoutVersion).Execute()
+> ApplyLayout200Response ApplyLayout(ctx).LayoutVersion(layoutVersion).Execute()
 
 Apply staged layout
 
@@ -105,6 +107,8 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `LayoutApi.ApplyLayout``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
+    // response from `ApplyLayout`: ApplyLayout200Response
+    fmt.Fprintf(os.Stdout, "Response from `LayoutApi.ApplyLayout`: %v\n", resp)
 }
 ```
 
@@ -123,7 +127,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
- (empty response body)
+[**ApplyLayout200Response**](ApplyLayout200Response.md)
 
 ### Authorization
 
@@ -132,7 +136,7 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: application/json
-- **Accept**: Not defined
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)

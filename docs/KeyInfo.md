@@ -6,7 +6,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Name** | Pointer to **string** |  | [optional] 
 **AccessKeyId** | Pointer to **string** |  | [optional] 
-**SecretAccessKey** | Pointer to **string** |  | [optional] 
+**SecretAccessKey** | Pointer to **NullableString** |  | [optional] 
 **Permissions** | Pointer to [**KeyInfoPermissions**](KeyInfoPermissions.md) |  | [optional] 
 **Buckets** | Pointer to [**[]KeyInfoBucketsInner**](KeyInfoBucketsInner.md) |  | [optional] 
 
@@ -104,6 +104,16 @@ SetSecretAccessKey sets SecretAccessKey field to given value.
 
 HasSecretAccessKey returns a boolean if a field has been set.
 
+### SetSecretAccessKeyNil
+
+`func (o *KeyInfo) SetSecretAccessKeyNil(b bool)`
+
+ SetSecretAccessKeyNil sets the value for SecretAccessKey to be an explicit nil
+
+### UnsetSecretAccessKey
+`func (o *KeyInfo) UnsetSecretAccessKey()`
+
+UnsetSecretAccessKey ensures that no value is present for SecretAccessKey, not even an explicit nil
 ### GetPermissions
 
 `func (o *KeyInfo) GetPermissions() KeyInfoPermissions`
