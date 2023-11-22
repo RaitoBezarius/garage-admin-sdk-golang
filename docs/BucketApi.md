@@ -6,16 +6,15 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**AllowBucketKey**](BucketApi.md#AllowBucketKey) | **Post** /bucket/allow | Allow key
 [**CreateBucket**](BucketApi.md#CreateBucket) | **Post** /bucket | Create a bucket
-[**DeleteBucket**](BucketApi.md#DeleteBucket) | **Delete** /bucket?id&#x3D;{bucket_id} | Delete a bucket
+[**DeleteBucket**](BucketApi.md#DeleteBucket) | **Delete** /bucket | Delete a bucket
 [**DeleteBucketGlobalAlias**](BucketApi.md#DeleteBucketGlobalAlias) | **Delete** /bucket/alias/global | Delete a global alias
 [**DeleteBucketLocalAlias**](BucketApi.md#DeleteBucketLocalAlias) | **Delete** /bucket/alias/local | Delete a local alias
 [**DenyBucketKey**](BucketApi.md#DenyBucketKey) | **Post** /bucket/deny | Deny key
-[**FindBucketInfo**](BucketApi.md#FindBucketInfo) | **Get** /bucket?globalAlias&#x3D;{alias} | Find a bucket
-[**GetBucketInfo**](BucketApi.md#GetBucketInfo) | **Get** /bucket?id&#x3D;{bucket_id} | Get a bucket
-[**ListBuckets**](BucketApi.md#ListBuckets) | **Get** /bucket | List all buckets
+[**GetBucketInfo**](BucketApi.md#GetBucketInfo) | **Get** /bucket | Get a bucket
+[**ListBuckets**](BucketApi.md#ListBuckets) | **Get** /bucket?list | List all buckets
 [**PutBucketGlobalAlias**](BucketApi.md#PutBucketGlobalAlias) | **Put** /bucket/alias/global | Add a global alias
 [**PutBucketLocalAlias**](BucketApi.md#PutBucketLocalAlias) | **Put** /bucket/alias/local | Add a local alias
-[**UpdateBucket**](BucketApi.md#UpdateBucket) | **Put** /bucket?id&#x3D;{bucket_id} | Update a bucket
+[**UpdateBucket**](BucketApi.md#UpdateBucket) | **Put** /bucket | Update a bucket
 
 
 
@@ -153,7 +152,7 @@ Name | Type | Description  | Notes
 
 ## DeleteBucket
 
-> DeleteBucket(ctx, bucketId).Execute()
+> DeleteBucket(ctx).Id(id).Execute()
 
 Delete a bucket
 
@@ -172,11 +171,11 @@ import (
 )
 
 func main() {
-    bucketId := "b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87" // string | The exact bucket identifier, a 32 bytes hexadecimal string
+    id := "b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87" // string | The exact bucket identifier, a 32 bytes hexadecimal string
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.BucketApi.DeleteBucket(context.Background(), bucketId).Execute()
+    resp, r, err := apiClient.BucketApi.DeleteBucket(context.Background()).Id(id).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `BucketApi.DeleteBucket``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -187,10 +186,6 @@ func main() {
 ### Path Parameters
 
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
-**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**bucketId** | **string** | The exact bucket identifier, a 32 bytes hexadecimal string | 
 
 ### Other Parameters
 
@@ -199,7 +194,7 @@ Other parameters are passed through a pointer to a apiDeleteBucketRequest struct
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
+ **id** | **string** | The exact bucket identifier, a 32 bytes hexadecimal string | 
 
 ### Return type
 
@@ -423,79 +418,9 @@ Name | Type | Description  | Notes
 [[Back to README]](../README.md)
 
 
-## FindBucketInfo
-
-> BucketInfo FindBucketInfo(ctx, alias).Execute()
-
-Find a bucket
-
-
-
-### Example
-
-```go
-package main
-
-import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "./openapi"
-)
-
-func main() {
-    alias := "my_documents" // string | The exact global alias of one of the existing buckets
-
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.BucketApi.FindBucketInfo(context.Background(), alias).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `BucketApi.FindBucketInfo``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `FindBucketInfo`: BucketInfo
-    fmt.Fprintf(os.Stdout, "Response from `BucketApi.FindBucketInfo`: %v\n", resp)
-}
-```
-
-### Path Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
-**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**alias** | **string** | The exact global alias of one of the existing buckets | 
-
-### Other Parameters
-
-Other parameters are passed through a pointer to a apiFindBucketInfoRequest struct via the builder pattern
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
-
-
-### Return type
-
-[**BucketInfo**](BucketInfo.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: application/json
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
-[[Back to Model list]](../README.md#documentation-for-models)
-[[Back to README]](../README.md)
-
-
 ## GetBucketInfo
 
-> BucketInfo GetBucketInfo(ctx, bucketId).Execute()
+> BucketInfo GetBucketInfo(ctx).Id(id).Alias(alias).Execute()
 
 Get a bucket
 
@@ -514,11 +439,12 @@ import (
 )
 
 func main() {
-    bucketId := "b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87" // string | The exact bucket identifier, a 32 bytes hexadecimal string
+    id := "b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87" // string | The exact bucket identifier, a 32 bytes hexadecimal string.  Incompatible with `alias`.  (optional)
+    alias := "my_documents" // string | The exact global alias of one of the existing buckets.  Incompatible with `id`.  (optional)
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.BucketApi.GetBucketInfo(context.Background(), bucketId).Execute()
+    resp, r, err := apiClient.BucketApi.GetBucketInfo(context.Background()).Id(id).Alias(alias).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `BucketApi.GetBucketInfo``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -531,10 +457,6 @@ func main() {
 ### Path Parameters
 
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
-**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**bucketId** | **string** | The exact bucket identifier, a 32 bytes hexadecimal string | 
 
 ### Other Parameters
 
@@ -543,7 +465,8 @@ Other parameters are passed through a pointer to a apiGetBucketInfoRequest struc
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
+ **id** | **string** | The exact bucket identifier, a 32 bytes hexadecimal string.  Incompatible with &#x60;alias&#x60;.  | 
+ **alias** | **string** | The exact global alias of one of the existing buckets.  Incompatible with &#x60;id&#x60;.  | 
 
 ### Return type
 
@@ -764,7 +687,7 @@ Name | Type | Description  | Notes
 
 ## UpdateBucket
 
-> BucketInfo UpdateBucket(ctx, bucketId).UpdateBucketRequest(updateBucketRequest).Execute()
+> BucketInfo UpdateBucket(ctx).Id(id).UpdateBucketRequest(updateBucketRequest).Execute()
 
 Update a bucket
 
@@ -783,12 +706,12 @@ import (
 )
 
 func main() {
-    bucketId := "b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87" // string | The exact bucket identifier, a 32 bytes hexadecimal string
+    id := "b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87" // string | The exact bucket identifier, a 32 bytes hexadecimal string
     updateBucketRequest := *openapiclient.NewUpdateBucketRequest() // UpdateBucketRequest | Requested changes on the bucket. Both root fields are optionals. 
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.BucketApi.UpdateBucket(context.Background(), bucketId).UpdateBucketRequest(updateBucketRequest).Execute()
+    resp, r, err := apiClient.BucketApi.UpdateBucket(context.Background()).Id(id).UpdateBucketRequest(updateBucketRequest).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `BucketApi.UpdateBucket``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -801,10 +724,6 @@ func main() {
 ### Path Parameters
 
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
-**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**bucketId** | **string** | The exact bucket identifier, a 32 bytes hexadecimal string | 
 
 ### Other Parameters
 
@@ -813,7 +732,7 @@ Other parameters are passed through a pointer to a apiUpdateBucketRequest struct
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
+ **id** | **string** | The exact bucket identifier, a 32 bytes hexadecimal string | 
  **updateBucketRequest** | [**UpdateBucketRequest**](UpdateBucketRequest.md) | Requested changes on the bucket. Both root fields are optionals.  | 
 
 ### Return type
