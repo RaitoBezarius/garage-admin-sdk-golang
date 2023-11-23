@@ -16,14 +16,14 @@ import (
 
 // LayoutVersion struct for LayoutVersion
 type LayoutVersion struct {
-	Version int64 `json:"version"`
+	Version int32 `json:"version"`
 }
 
 // NewLayoutVersion instantiates a new LayoutVersion object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLayoutVersion(version int64) *LayoutVersion {
+func NewLayoutVersion(version int32) *LayoutVersion {
 	this := LayoutVersion{}
 	this.Version = version
 	return &this
@@ -38,9 +38,9 @@ func NewLayoutVersionWithDefaults() *LayoutVersion {
 }
 
 // GetVersion returns the Version field value
-func (o *LayoutVersion) GetVersion() int64 {
+func (o *LayoutVersion) GetVersion() int32 {
 	if o == nil {
-		var ret int64
+		var ret int32
 		return ret
 	}
 
@@ -49,7 +49,7 @@ func (o *LayoutVersion) GetVersion() int64 {
 
 // GetVersionOk returns a tuple with the Version field value
 // and a boolean to check if the value has been set.
-func (o *LayoutVersion) GetVersionOk() (*int64, bool) {
+func (o *LayoutVersion) GetVersionOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -57,7 +57,7 @@ func (o *LayoutVersion) GetVersionOk() (*int64, bool) {
 }
 
 // SetVersion sets field value
-func (o *LayoutVersion) SetVersion(v int64) {
+func (o *LayoutVersion) SetVersion(v int32) {
 	o.Version = v
 }
 

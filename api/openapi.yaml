@@ -1010,7 +1010,6 @@ components:
       properties:
         version:
           example: 13
-          format: int64
           type: integer
       required:
       - version
