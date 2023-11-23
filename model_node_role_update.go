@@ -16,9 +16,9 @@ import (
 
 // NodeRoleUpdate struct for NodeRoleUpdate
 type NodeRoleUpdate struct {
-	Id *string `json:"id,omitempty"`
+	Id string `json:"id"`
 	Zone string `json:"zone"`
-	Capacity NullableInt32 `json:"capacity"`
+	Capacity NullableInt64 `json:"capacity"`
 	Tags []string `json:"tags"`
 }
 
@@ -26,8 +26,9 @@ type NodeRoleUpdate struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewNodeRoleUpdate(zone string, capacity NullableInt32, tags []string) *NodeRoleUpdate {
+func NewNodeRoleUpdate(id string, zone string, capacity NullableInt64, tags []string) *NodeRoleUpdate {
 	this := NodeRoleUpdate{}
+	this.Id = id
 	this.Zone = zone
 	this.Capacity = capacity
 	this.Tags = tags
@@ -42,36 +43,28 @@ func NewNodeRoleUpdateWithDefaults() *NodeRoleUpdate {
 	return &this
 }
 
-// GetId returns the Id field value if set, zero value otherwise.
+// GetId returns the Id field value
 func (o *NodeRoleUpdate) GetId() string {
-	if o == nil || o.Id == nil {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.Id
+
+	return o.Id
 }
 
-// GetIdOk returns a tuple with the Id field value if set, nil otherwise
+// GetIdOk returns a tuple with the Id field value
 // and a boolean to check if the value has been set.
 func (o *NodeRoleUpdate) GetIdOk() (*string, bool) {
-	if o == nil || o.Id == nil {
+	if o == nil {
 		return nil, false
 	}
-	return o.Id, true
+	return &o.Id, true
 }
 
-// HasId returns a boolean if a field has been set.
-func (o *NodeRoleUpdate) HasId() bool {
-	if o != nil && o.Id != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetId gets a reference to the given string and assigns it to the Id field.
+// SetId sets field value
 func (o *NodeRoleUpdate) SetId(v string) {
-	o.Id = &v
+	o.Id = v
 }
 
 // GetZone returns the Zone field value
@@ -99,10 +92,10 @@ func (o *NodeRoleUpdate) SetZone(v string) {
 }
 
 // GetCapacity returns the Capacity field value
-// If the value is explicit nil, the zero value for int32 will be returned
-func (o *NodeRoleUpdate) GetCapacity() int32 {
+// If the value is explicit nil, the zero value for int64 will be returned
+func (o *NodeRoleUpdate) GetCapacity() int64 {
 	if o == nil || o.Capacity.Get() == nil {
-		var ret int32
+		var ret int64
 		return ret
 	}
 
@@ -112,7 +105,7 @@ func (o *NodeRoleUpdate) GetCapacity() int32 {
 // GetCapacityOk returns a tuple with the Capacity field value
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *NodeRoleUpdate) GetCapacityOk() (*int32, bool) {
+func (o *NodeRoleUpdate) GetCapacityOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -120,7 +113,7 @@ func (o *NodeRoleUpdate) GetCapacityOk() (*int32, bool) {
 }
 
 // SetCapacity sets field value
-func (o *NodeRoleUpdate) SetCapacity(v int32) {
+func (o *NodeRoleUpdate) SetCapacity(v int64) {
 	o.Capacity.Set(&v)
 }
 
@@ -150,7 +143,7 @@ func (o *NodeRoleUpdate) SetTags(v []string) {
 
 func (o NodeRoleUpdate) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if o.Id != nil {
+	if true {
 		toSerialize["id"] = o.Id
 	}
 	if true {

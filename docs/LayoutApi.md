@@ -32,7 +32,7 @@ import (
 )
 
 func main() {
-    nodeRoleChange := []openapiclient.NodeRoleChange{openapiclient.NodeRoleChange{NodeRoleRemove: openapiclient.NewNodeRoleRemove(true)}} // []NodeRoleChange | To add a new node to the layout or to change the configuration of an existing node, simply set the values you want (`zone`, `capacity`, and `tags`). To remove a node, simply pass the `remove: true` field. This logic is represented in OpenAPI with a \"One Of\" object.  Contrary to the CLI that may update only a subset of the fields capacity, zone and tags, when calling this API all of these values must be specified. 
+    nodeRoleChange := []openapiclient.NodeRoleChange{openapiclient.NodeRoleChange{NodeRoleRemove: openapiclient.NewNodeRoleRemove("6a8e08af2aab1083ebab9b22165ea8b5b9d333b60a39ecd504e85cc1f432c36f", true)}} // []NodeRoleChange | To add a new node to the layout or to change the configuration of an existing node, simply set the values you want (`zone`, `capacity`, and `tags`). To remove a node, simply pass the `remove: true` field. This logic is represented in OpenAPI with a \"One Of\" object.  Contrary to the CLI that may update only a subset of the fields capacity, zone and tags, when calling this API all of these values must be specified. 
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)

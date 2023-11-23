@@ -17,7 +17,7 @@ import (
 // NodeClusterInfo struct for NodeClusterInfo
 type NodeClusterInfo struct {
 	Zone string `json:"zone"`
-	Capacity NullableInt32 `json:"capacity,omitempty"`
+	Capacity NullableInt64 `json:"capacity,omitempty"`
 	// User defined tags, put whatever makes sense for you, these tags are not interpreted by Garage 
 	Tags []string `json:"tags"`
 }
@@ -66,9 +66,9 @@ func (o *NodeClusterInfo) SetZone(v string) {
 }
 
 // GetCapacity returns the Capacity field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *NodeClusterInfo) GetCapacity() int32 {
+func (o *NodeClusterInfo) GetCapacity() int64 {
 	if o == nil || o.Capacity.Get() == nil {
-		var ret int32
+		var ret int64
 		return ret
 	}
 	return *o.Capacity.Get()
@@ -77,7 +77,7 @@ func (o *NodeClusterInfo) GetCapacity() int32 {
 // GetCapacityOk returns a tuple with the Capacity field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *NodeClusterInfo) GetCapacityOk() (*int32, bool) {
+func (o *NodeClusterInfo) GetCapacityOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -93,8 +93,8 @@ func (o *NodeClusterInfo) HasCapacity() bool {
 	return false
 }
 
-// SetCapacity gets a reference to the given NullableInt32 and assigns it to the Capacity field.
-func (o *NodeClusterInfo) SetCapacity(v int32) {
+// SetCapacity gets a reference to the given NullableInt64 and assigns it to the Capacity field.
+func (o *NodeClusterInfo) SetCapacity(v int64) {
 	o.Capacity.Set(&v)
 }
 // SetCapacityNil sets the value for Capacity to be an explicit nil

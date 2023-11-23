@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Zone** | **string** |  | 
-**Capacity** | Pointer to **NullableInt32** |  | [optional] 
+**Capacity** | Pointer to **NullableInt64** |  | [optional] 
 **Tags** | **[]string** | User defined tags, put whatever makes sense for you, these tags are not interpreted by Garage  | 
 
 ## Methods
@@ -49,20 +49,20 @@ SetZone sets Zone field to given value.
 
 ### GetCapacity
 
-`func (o *NodeClusterInfo) GetCapacity() int32`
+`func (o *NodeClusterInfo) GetCapacity() int64`
 
 GetCapacity returns the Capacity field if non-nil, zero value otherwise.
 
 ### GetCapacityOk
 
-`func (o *NodeClusterInfo) GetCapacityOk() (*int32, bool)`
+`func (o *NodeClusterInfo) GetCapacityOk() (*int64, bool)`
 
 GetCapacityOk returns a tuple with the Capacity field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetCapacity
 
-`func (o *NodeClusterInfo) SetCapacity(v int32)`
+`func (o *NodeClusterInfo) SetCapacity(v int64)`
 
 SetCapacity sets Capacity field to given value.
 

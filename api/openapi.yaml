@@ -885,6 +885,7 @@ components:
           type: string
         capacity:
           example: 4
+          format: int64
           nullable: true
           type: integer
         tags:
@@ -914,6 +915,7 @@ components:
           example: true
           type: boolean
       required:
+      - id
       - remove
       type: object
     NodeRoleUpdate:
@@ -926,6 +928,7 @@ components:
           type: string
         capacity:
           example: 150000000000
+          format: int64
           nullable: true
           type: integer
         tags:
@@ -937,6 +940,7 @@ components:
           type: array
       required:
       - capacity
+      - id
       - tags
       - zone
       type: object

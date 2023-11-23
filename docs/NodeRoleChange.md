@@ -4,17 +4,17 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | Pointer to **string** |  | [optional] 
+**Id** | **string** |  | 
 **Remove** | **bool** |  | 
 **Zone** | **string** |  | 
-**Capacity** | **NullableInt32** |  | 
+**Capacity** | **NullableInt64** |  | 
 **Tags** | **[]string** |  | 
 
 ## Methods
 
 ### NewNodeRoleChange
 
-`func NewNodeRoleChange(remove bool, zone string, capacity NullableInt32, tags []string, ) *NodeRoleChange`
+`func NewNodeRoleChange(id string, remove bool, zone string, capacity NullableInt64, tags []string, ) *NodeRoleChange`
 
 NewNodeRoleChange instantiates a new NodeRoleChange object
 This constructor will assign default values to properties that have it defined,
@@ -48,11 +48,6 @@ and a boolean to check if the value has been set.
 
 SetId sets Id field to given value.
 
-### HasId
-
-`func (o *NodeRoleChange) HasId() bool`
-
-HasId returns a boolean if a field has been set.
 
 ### GetRemove
 
@@ -96,20 +91,20 @@ SetZone sets Zone field to given value.
 
 ### GetCapacity
 
-`func (o *NodeRoleChange) GetCapacity() int32`
+`func (o *NodeRoleChange) GetCapacity() int64`
 
 GetCapacity returns the Capacity field if non-nil, zero value otherwise.
 
 ### GetCapacityOk
 
-`func (o *NodeRoleChange) GetCapacityOk() (*int32, bool)`
+`func (o *NodeRoleChange) GetCapacityOk() (*int64, bool)`
 
 GetCapacityOk returns a tuple with the Capacity field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetCapacity
 
-`func (o *NodeRoleChange) SetCapacity(v int32)`
+`func (o *NodeRoleChange) SetCapacity(v int64)`
 
 SetCapacity sets Capacity field to given value.
 

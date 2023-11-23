@@ -16,7 +16,7 @@ import (
 
 // NodeRoleRemove struct for NodeRoleRemove
 type NodeRoleRemove struct {
-	Id *string `json:"id,omitempty"`
+	Id string `json:"id"`
 	Remove bool `json:"remove"`
 }
 
@@ -24,8 +24,9 @@ type NodeRoleRemove struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewNodeRoleRemove(remove bool) *NodeRoleRemove {
+func NewNodeRoleRemove(id string, remove bool) *NodeRoleRemove {
 	this := NodeRoleRemove{}
+	this.Id = id
 	this.Remove = remove
 	return &this
 }
@@ -38,36 +39,28 @@ func NewNodeRoleRemoveWithDefaults() *NodeRoleRemove {
 	return &this
 }
 
-// GetId returns the Id field value if set, zero value otherwise.
+// GetId returns the Id field value
 func (o *NodeRoleRemove) GetId() string {
-	if o == nil || o.Id == nil {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.Id
+
+	return o.Id
 }
 
-// GetIdOk returns a tuple with the Id field value if set, nil otherwise
+// GetIdOk returns a tuple with the Id field value
 // and a boolean to check if the value has been set.
 func (o *NodeRoleRemove) GetIdOk() (*string, bool) {
-	if o == nil || o.Id == nil {
+	if o == nil {
 		return nil, false
 	}
-	return o.Id, true
+	return &o.Id, true
 }
 
-// HasId returns a boolean if a field has been set.
-func (o *NodeRoleRemove) HasId() bool {
-	if o != nil && o.Id != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetId gets a reference to the given string and assigns it to the Id field.
+// SetId sets field value
 func (o *NodeRoleRemove) SetId(v string) {
-	o.Id = &v
+	o.Id = v
 }
 
 // GetRemove returns the Remove field value
@@ -96,7 +89,7 @@ func (o *NodeRoleRemove) SetRemove(v bool) {
 
 func (o NodeRoleRemove) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if o.Id != nil {
+	if true {
 		toSerialize["id"] = o.Id
 	}
 	if true {
