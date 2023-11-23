@@ -98,7 +98,7 @@ import (
 )
 
 func main() {
-    layoutVersion := *openapiclient.NewLayoutVersion() // LayoutVersion | Similarly to the CLI, the body must include the version of the new layout that will be created, which MUST be 1 + the value of the currently existing layout in the cluster. 
+    layoutVersion := *openapiclient.NewLayoutVersion(int64(13)) // LayoutVersion | Similarly to the CLI, the body must include the version of the new layout that will be created, which MUST be 1 + the value of the currently existing layout in the cluster. 
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
@@ -225,7 +225,7 @@ import (
 )
 
 func main() {
-    layoutVersion := *openapiclient.NewLayoutVersion() // LayoutVersion | Reverting the staged changes is done by incrementing the version number and clearing the contents of the staged change list. Similarly to the CLI, the body must include the incremented version number, which MUST be 1 + the value of the currently existing layout in the cluster. 
+    layoutVersion := *openapiclient.NewLayoutVersion(int64(13)) // LayoutVersion | Reverting the staged changes is done by incrementing the version number and clearing the contents of the staged change list. Similarly to the CLI, the body must include the incremented version number, which MUST be 1 + the value of the currently existing layout in the cluster. 
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)

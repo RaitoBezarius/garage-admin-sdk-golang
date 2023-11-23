@@ -16,15 +16,16 @@ import (
 
 // LayoutVersion struct for LayoutVersion
 type LayoutVersion struct {
-	Version *int32 `json:"version,omitempty"`
+	Version int64 `json:"version"`
 }
 
 // NewLayoutVersion instantiates a new LayoutVersion object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLayoutVersion() *LayoutVersion {
+func NewLayoutVersion(version int64) *LayoutVersion {
 	this := LayoutVersion{}
+	this.Version = version
 	return &this
 }
 
@@ -36,41 +37,33 @@ func NewLayoutVersionWithDefaults() *LayoutVersion {
 	return &this
 }
 
-// GetVersion returns the Version field value if set, zero value otherwise.
-func (o *LayoutVersion) GetVersion() int32 {
-	if o == nil || o.Version == nil {
-		var ret int32
+// GetVersion returns the Version field value
+func (o *LayoutVersion) GetVersion() int64 {
+	if o == nil {
+		var ret int64
 		return ret
 	}
-	return *o.Version
+
+	return o.Version
 }
 
-// GetVersionOk returns a tuple with the Version field value if set, nil otherwise
+// GetVersionOk returns a tuple with the Version field value
 // and a boolean to check if the value has been set.
-func (o *LayoutVersion) GetVersionOk() (*int32, bool) {
-	if o == nil || o.Version == nil {
+func (o *LayoutVersion) GetVersionOk() (*int64, bool) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Version, true
+	return &o.Version, true
 }
 
-// HasVersion returns a boolean if a field has been set.
-func (o *LayoutVersion) HasVersion() bool {
-	if o != nil && o.Version != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetVersion gets a reference to the given int32 and assigns it to the Version field.
-func (o *LayoutVersion) SetVersion(v int32) {
-	o.Version = &v
+// SetVersion sets field value
+func (o *LayoutVersion) SetVersion(v int64) {
+	o.Version = v
 }
 
 func (o LayoutVersion) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if o.Version != nil {
+	if true {
 		toSerialize["version"] = o.Version
 	}
 	return json.Marshal(toSerialize)
