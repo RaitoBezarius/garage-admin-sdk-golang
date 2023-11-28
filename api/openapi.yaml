@@ -12,6 +12,25 @@ servers:
 security:
 - bearerAuth: []
 paths:
+  /health:
+    get:
+      description: |
+        Returns the global status of the cluster, the number of connected nodes (over the number of known ones), the number of healthy storage nodes (over the declared ones), and the number of healthy partitions (over the total).
+      operationId: GetHealth
+      responses:
+        "500":
+          description: |
+            The server can not answer your request because it is in a bad state
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetHealth_200_response'
+          description: |
+            Information about the queried node, its environment and the current layout
+      summary: Cluster health report
+      tags:
+      - Nodes
   /status:
     get:
       description: |
@@ -34,7 +53,7 @@ paths:
                 $ref: '#/components/schemas/GetNodes_200_response'
           description: |
             Information about the queried node, its environment and the current layout
-      summary: Status of this node and other nodes in the cluster
+      summary: Describe cluster
       tags:
       - Nodes
   /connect:
@@ -74,7 +93,7 @@ paths:
                 type: array
           description: |
             The request has been handled correctly but it does not mean that all connection requests succeeded; some might have fail, you need to check the body!
-      summary: Connect target node to other Garage nodes
+      summary: Connect a new node
       tags:
       - Nodes
   /layout:
@@ -1152,6 +1171,58 @@ components:
             example: my_documents
             type: string
           type: array
+      type: object
+    GetHealth_200_response:
+      example:
+        storageNodesOk: 3
+        partitions: 256
+        partitionsQuorum: 256
+        knownNodes: 4
+        connectedNodes: 4
+        storageNodes: 3
+        partitionsAllOk: 256
+        status: healthy
+      properties:
+        status:
+          example: healthy
+          type: string
+        knownNodes:
+          example: 4
+          format: int64
+          type: integer
+        connectedNodes:
+          example: 4
+          format: int64
+          type: integer
+        storageNodes:
+          example: 3
+          format: int64
+          type: integer
+        storageNodesOk:
+          example: 3
+          format: int64
+          type: integer
+        partitions:
+          example: 256
+          format: int64
+          type: integer
+        partitionsQuorum:
+          example: 256
+          format: int64
+          type: integer
+        partitionsAllOk:
+          example: 256
+          format: int64
+          type: integer
+      required:
+      - connectedNodes
+      - knownNodes
+      - partitions
+      - partitionsAllOk
+      - partitionsQuorum
+      - status
+      - storageNodes
+      - storageNodesOk
       type: object
     GetNodes_200_response:
       example:

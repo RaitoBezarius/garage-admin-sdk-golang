@@ -22,6 +22,7 @@ docs/ClusterLayout.md
 docs/CreateBucketRequest.md
 docs/CreateBucketRequestLocalAlias.md
 docs/CreateBucketRequestLocalAliasAllow.md
+docs/GetHealth200Response.md
 docs/GetNodes200Response.md
 docs/ImportKeyRequest.md
 docs/KeyApi.md
@@ -62,6 +63,7 @@ model_cluster_layout.go
 model_create_bucket_request.go
 model_create_bucket_request_local_alias.go
 model_create_bucket_request_local_alias_allow.go
+model_get_health_200_response.go
 model_get_nodes_200_response.go
 model_import_key_request.go
 model_key_info.go

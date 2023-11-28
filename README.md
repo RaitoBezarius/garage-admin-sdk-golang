@@ -102,8 +102,9 @@ Class | Method | HTTP request | Description
 *LayoutApi* | [**ApplyLayout**](docs/LayoutApi.md#applylayout) | **Post** /layout/apply | Apply staged layout
 *LayoutApi* | [**GetLayout**](docs/LayoutApi.md#getlayout) | **Get** /layout | Details on the current and staged layout
 *LayoutApi* | [**RevertLayout**](docs/LayoutApi.md#revertlayout) | **Post** /layout/revert | Clear staged layout
-*NodesApi* | [**AddNode**](docs/NodesApi.md#addnode) | **Post** /connect | Connect target node to other Garage nodes
-*NodesApi* | [**GetNodes**](docs/NodesApi.md#getnodes) | **Get** /status | Status of this node and other nodes in the cluster
+*NodesApi* | [**AddNode**](docs/NodesApi.md#addnode) | **Post** /connect | Connect a new node
+*NodesApi* | [**GetHealth**](docs/NodesApi.md#gethealth) | **Get** /health | Cluster health report
+*NodesApi* | [**GetNodes**](docs/NodesApi.md#getnodes) | **Get** /status | Describe cluster
 
 
 ## Documentation For Models
@@ -121,6 +122,7 @@ Class | Method | HTTP request | Description
  - [CreateBucketRequest](docs/CreateBucketRequest.md)
  - [CreateBucketRequestLocalAlias](docs/CreateBucketRequestLocalAlias.md)
  - [CreateBucketRequestLocalAliasAllow](docs/CreateBucketRequestLocalAliasAllow.md)
+ - [GetHealth200Response](docs/GetHealth200Response.md)
  - [GetNodes200Response](docs/GetNodes200Response.md)
  - [ImportKeyRequest](docs/ImportKeyRequest.md)
  - [KeyInfo](docs/KeyInfo.md)
