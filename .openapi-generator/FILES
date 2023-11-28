@@ -12,6 +12,7 @@ docs/AddKeyRequest.md
 docs/AddNode200ResponseInner.md
 docs/AllowBucketKeyRequest.md
 docs/AllowBucketKeyRequestPermissions.md
+docs/ApplyLayout200Response.md
 docs/BucketApi.md
 docs/BucketInfo.md
 docs/BucketInfoQuotas.md
@@ -21,6 +22,7 @@ docs/ClusterLayout.md
 docs/CreateBucketRequest.md
 docs/CreateBucketRequestLocalAlias.md
 docs/CreateBucketRequestLocalAliasAllow.md
+docs/GetHealth200Response.md
 docs/GetNodes200Response.md
 docs/ImportKeyRequest.md
 docs/KeyApi.md
@@ -35,6 +37,9 @@ docs/ListBuckets200ResponseInnerLocalAliasesInner.md
 docs/ListKeys200ResponseInner.md
 docs/NodeClusterInfo.md
 docs/NodeNetworkInfo.md
+docs/NodeRoleChange.md
+docs/NodeRoleRemove.md
+docs/NodeRoleUpdate.md
 docs/NodesApi.md
 docs/UpdateBucketRequest.md
 docs/UpdateBucketRequestQuotas.md
@@ -49,6 +54,7 @@ model_add_key_request.go
 model_add_node_200_response_inner.go
 model_allow_bucket_key_request.go
 model_allow_bucket_key_request_permissions.go
+model_apply_layout_200_response.go
 model_bucket_info.go
 model_bucket_info_quotas.go
 model_bucket_info_website_config.go
@@ -57,6 +63,7 @@ model_cluster_layout.go
 model_create_bucket_request.go
 model_create_bucket_request_local_alias.go
 model_create_bucket_request_local_alias_allow.go
+model_get_health_200_response.go
 model_get_nodes_200_response.go
 model_import_key_request.go
 model_key_info.go
@@ -69,6 +76,9 @@ model_list_buckets_200_response_inner_local_aliases_inner.go
 model_list_keys_200_response_inner.go
 model_node_cluster_info.go
 model_node_network_info.go
+model_node_role_change.go
+model_node_role_remove.go
+model_node_role_update.go
 model_update_bucket_request.go
 model_update_bucket_request_quotas.go
 model_update_bucket_request_website_access.go

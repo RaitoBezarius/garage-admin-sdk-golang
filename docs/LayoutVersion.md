@@ -4,13 +4,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Version** | Pointer to **int32** |  | [optional] 
+**Version** | **int32** |  | 
 
 ## Methods
 
 ### NewLayoutVersion
 
-`func NewLayoutVersion() *LayoutVersion`
+`func NewLayoutVersion(version int32, ) *LayoutVersion`
 
 NewLayoutVersion instantiates a new LayoutVersion object
 This constructor will assign default values to properties that have it defined,
@@ -44,11 +44,6 @@ and a boolean to check if the value has been set.
 
 SetVersion sets Version field to given value.
 
-### HasVersion
-
-`func (o *LayoutVersion) HasVersion() bool`
-
-HasVersion returns a boolean if a field has been set.
 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

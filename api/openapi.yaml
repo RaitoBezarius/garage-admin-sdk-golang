@@ -4,14 +4,33 @@ info:
     Administrate your Garage cluster programatically, including status, layout, keys, buckets, and maintainance tasks.
 
     *Disclaimer: The API is not stable yet, hence its v0 tag. The API can change at any time, and changes can include breaking backward compatibility. Read the changelog and upgrade your scripts before upgrading. Additionnaly, this specification is very early stage and can contain bugs, especially on error return codes/types that are not tested yet. Do not expect a well finished and polished product!*
-  title: Garage Administration API v0+garage-v0.8.0
-  version: v0.8.0
+  title: Garage Administration API v0+garage-v0.9.0
+  version: v0.9.0
 servers:
 - description: A local server
-  url: http://localhost:3903/v0/
+  url: http://localhost:3903/v1/
 security:
 - bearerAuth: []
 paths:
+  /health:
+    get:
+      description: |
+        Returns the global status of the cluster, the number of connected nodes (over the number of known ones), the number of healthy storage nodes (over the declared ones), and the number of healthy partitions (over the total).
+      operationId: GetHealth
+      responses:
+        "500":
+          description: |
+            The server can not answer your request because it is in a bad state
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetHealth_200_response'
+          description: |
+            Information about the queried node, its environment and the current layout
+      summary: Cluster health report
+      tags:
+      - Nodes
   /status:
     get:
       description: |
@@ -20,6 +39,8 @@ paths:
          - Live nodes
          - Currently configured cluster layout
          - Staged changes to the cluster layout
+
+        *Capacity is given in bytes*
       operationId: GetNodes
       responses:
         "500":
@@ -32,7 +53,7 @@ paths:
                 $ref: '#/components/schemas/GetNodes_200_response'
           description: |
             Information about the queried node, its environment and the current layout
-      summary: Status of this node and other nodes in the cluster
+      summary: Describe cluster
       tags:
       - Nodes
   /connect:
@@ -72,15 +93,15 @@ paths:
                 type: array
           description: |
             The request has been handled correctly but it does not mean that all connection requests succeeded; some might have fail, you need to check the body!
-      summary: Connect target node to other Garage nodes
+      summary: Connect a new node
       tags:
       - Nodes
   /layout:
     get:
       description: "Returns the cluster's current layout, including:\n  - Currently\
         \ configured cluster layout\n  - Staged changes to the cluster layout\n  \n\
-        *The info returned by this endpoint is a subset of the info returned by `GET\
-        \ /status`.*\n"
+        *Capacity is given in bytes*\n*The info returned by this endpoint is a subset\
+        \ of the info returned by `GET /status`.*\n"
       operationId: GetLayout
       responses:
         "500":
@@ -101,25 +122,32 @@ paths:
     post:
       description: |
         Send modifications to the cluster layout. These modifications will be included in the staged role changes, visible in subsequent calls of `GET /layout`. Once the set of staged changes is satisfactory, the user may call `POST /layout/apply` to apply the changed changes, or `POST /layout/revert` to clear all of the staged changes in the layout.
-        Note that setting the capacity to `null` will configure the node as a gateway.
+
+        Setting the capacity to `null` will configure the node as a gateway.
+        Otherwise, capacity must be now set in bytes (before Garage 0.9 it was arbitrary weights).
+        For example to declare 100GB, you must set `capacity: 100000000000`.
+
+        Garage uses internally the International System of Units (SI), it assumes that 1kB = 1000 bytes, and displays storage as kB, MB, GB (and not KiB, MiB, GiB that assume 1KiB = 1024 bytes).
       operationId: AddLayout
       requestBody:
         content:
           application/json:
             schema:
-              additionalProperties:
-                $ref: '#/components/schemas/NodeClusterInfo'
               example:
-                e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-                  zone: geneva
-                  capacity: 4
-                  tags:
-                  - gateway
-                "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff": null
-              type: object
+              - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+                zone: geneva
+                capacity: 100000000000
+                tags:
+                - gateway
+              - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+                remove: true
+              items:
+                $ref: '#/components/schemas/NodeRoleChange'
+              type: array
         description: |
-          To add a new node to the layout or to change the configuration of an existing node, simply set the values you want.
-          To remove a node, set it to `null` instead of passing a configuration object.
+          To add a new node to the layout or to change the configuration of an existing node, simply set the values you want (`zone`, `capacity`, and `tags`).
+          To remove a node, simply pass the `remove: true` field.
+          This logic is represented in OpenAPI with a "One Of" object.
 
           Contrary to the CLI that may update only a subset of the fields capacity, zone and tags, when calling this API all of these values must be specified.
         required: true
@@ -130,6 +158,10 @@ paths:
         "400":
           description: Invalid syntax or requested change
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterLayout'
           description: The layout modification has been correctly staged
       summary: Send modifications to the cluster layout
       tags:
@@ -138,6 +170,8 @@ paths:
     post:
       description: |
         Applies to the cluster the layout changes currently registered as staged layout changes.
+
+        *Note: do not try to parse the `message` field of the response, it is given as an array of string specifically because its format is not stable.*
       operationId: ApplyLayout
       requestBody:
         content:
@@ -154,6 +188,10 @@ paths:
         "400":
           description: Invalid syntax or requested change
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyLayout_200_response'
           description: "The staged layout has been applied as the new layout of the\
             \ cluster, a rebalance has been triggered."
       summary: Apply staged layout
@@ -184,7 +222,7 @@ paths:
       summary: Clear staged layout
       tags:
       - Layout
-  /key:
+  /key?list:
     get:
       description: |
         Returns all API access keys in the cluster.
@@ -220,7 +258,10 @@ paths:
             schema:
               $ref: '#/components/schemas/AddKey_request'
         description: |
-          "You can set a friendly name for this key, send an empty string instead"
+          You can set a friendly name for this key.
+          If you don't want to, you can set the name to `null`.
+
+          *Note: the secret key is returned in the response.*
         required: true
       responses:
         "500":
@@ -237,7 +278,7 @@ paths:
       summary: Create a new API key
       tags:
       - Key
-  /key?id={access_key}:
+  /key:
     delete:
       description: "Delete a key from the cluster. Its access will be removed from\
         \ all the buckets. Buckets are not automatically deleted and can be dangling.\
@@ -246,13 +287,13 @@ paths:
       parameters:
       - description: The exact API access key generated by Garage
         example: GK31c2f218a2e44f485b94239e
-        explode: false
-        in: path
-        name: access_key
+        explode: true
+        in: query
+        name: id
         required: true
         schema:
           type: string
-        style: simple
+        style: form
       responses:
         "500":
           description: The server can not handle your request. Check your connectivity
@@ -263,19 +304,50 @@ paths:
       tags:
       - Key
     get:
-      description: |
-        Return information about a specific key and return its information
+      description: "Return information about a specific key like its identifiers,\
+        \ its permissions and buckets on which it has permissions. \nYou can search\
+        \ by specifying the exact key identifier (`id`) or by specifying a pattern\
+        \ (`search`).\n\nFor confidentiality reasons, the secret key is not returned\
+        \ by default: you must pass the `showSecretKey` query parameter to get it.\n"
       operationId: GetKey
       parameters:
-      - description: The exact API access key generated by Garage
+      - description: |
+          The exact API access key generated by Garage.
+
+          Incompatible with `search`.
         example: GK31c2f218a2e44f485b94239e
-        explode: false
-        in: path
-        name: access_key
-        required: true
+        explode: true
+        in: query
+        name: id
+        required: false
         schema:
           type: string
-        style: simple
+        style: form
+      - description: |
+          A pattern (beginning or full string) corresponding to a key identifier or friendly name.
+
+          Incompatible with `id`.
+        example: test-k
+        explode: true
+        in: query
+        name: search
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Wether or not the secret key should be returned in the response
+        example: "true"
+        explode: true
+        in: query
+        name: showSecretKey
+        required: false
+        schema:
+          default: "false"
+          enum:
+          - "true"
+          - "false"
+          type: string
+        style: form
       responses:
         "500":
           description: The server can not handle your request. Check your connectivity
@@ -293,17 +365,19 @@ paths:
     post:
       description: |
         Updates information about the specified API access key.
+
+        *Note: the secret key is not returned in the response, `null` is sent instead.*
       operationId: UpdateKey
       parameters:
       - description: The exact API access key generated by Garage
         example: GK31c2f218a2e44f485b94239e
-        explode: false
-        in: path
-        name: access_key
+        explode: true
+        in: query
+        name: id
         required: true
         schema:
           type: string
-        style: simple
+        style: form
       requestBody:
         content:
           application/json:
@@ -326,36 +400,6 @@ paths:
           description: |
             Returns information about the key
       summary: Update a key
-      tags:
-      - Key
-  /key?search={pattern}:
-    get:
-      description: |
-        Find the first key matching the given pattern based on its identifier aor friendly name and return its information.
-      operationId: SearchKey
-      parameters:
-      - description: A pattern (beginning or full string) corresponding to a key identifier
-          or friendly name
-        example: test-k
-        explode: false
-        in: path
-        name: pattern
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "500":
-          description: The server can not handle your request. Check your connectivity
-            with the rest of the cluster.
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/KeyInfo'
-          description: |
-            Returns information about the key
-      summary: Select key by pattern
       tags:
       - Key
   /key/import:
@@ -388,7 +432,7 @@ paths:
       summary: Import an existing key
       tags:
       - Key
-  /bucket:
+  /bucket?list:
     get:
       description: |
         List all the buckets on the cluster with their UUID and their global and local aliases.
@@ -427,6 +471,83 @@ paths:
       summary: List all buckets
       tags:
       - Bucket
+  /bucket:
+    delete:
+      description: |
+        Delete a bucket.Deletes a storage bucket. A bucket cannot be deleted if it is not empty.
+
+        **Warning:** this will delete all aliases associated with the bucket!
+      operationId: DeleteBucket
+      parameters:
+      - description: "The exact bucket identifier, a 32 bytes hexadecimal string"
+        example: b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87
+        explode: true
+        in: query
+        name: id
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "500":
+          description: The server can not handle your request. Check your connectivity
+            with the rest of the cluster.
+        "400":
+          description: Bucket is not empty
+        "404":
+          description: Bucket not found
+        "204":
+          description: Bucket has been deleted
+      summary: Delete a bucket
+      tags:
+      - Bucket
+    get:
+      description: |
+        Given a bucket identifier (`id`) or a global alias (`alias`), get its information.
+        It includes its aliases, its web configuration, keys that have some permissions
+        on it, some statistics (number of objects, size), number of dangling multipart uploads,
+        and its quotas (if any).
+      operationId: GetBucketInfo
+      parameters:
+      - description: |
+          The exact bucket identifier, a 32 bytes hexadecimal string.
+
+          Incompatible with `alias`.
+        example: b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87
+        explode: true
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: |
+          The exact global alias of one of the existing buckets.
+
+          Incompatible with `id`.
+        example: my_documents
+        explode: true
+        in: query
+        name: alias
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "500":
+          description: The server can not handle your request. Check your connectivity
+            with the rest of the cluster.
+        "404":
+          description: Bucket not found
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BucketInfo'
+          description: Returns exhaustive information about the bucket
+      summary: Get a bucket
+      tags:
+      - Bucket
     post:
       description: |
         Creates a new bucket, either with a global alias, a local one, or no alias at all.
@@ -455,71 +576,9 @@ paths:
       summary: Create a bucket
       tags:
       - Bucket
-  /bucket?id={bucket_id}:
-    delete:
-      description: |
-        Delete a bucket.Deletes a storage bucket. A bucket cannot be deleted if it is not empty.
-
-        **Warning:** this will delete all aliases associated with the bucket!
-      operationId: DeleteBucket
-      parameters:
-      - description: "The exact bucket identifier, a 32 bytes hexadecimal string"
-        example: b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87
-        explode: false
-        in: path
-        name: bucket_id
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "500":
-          description: The server can not handle your request. Check your connectivity
-            with the rest of the cluster.
-        "400":
-          description: Bucket is not empty
-        "404":
-          description: Bucket not found
-        "204":
-          description: Bucket has been deleted
-      summary: Delete a bucket
-      tags:
-      - Bucket
-    get:
-      description: |
-        Given a bucket identifier, get its information.
-        It includes its aliases, its web configuration, keys that have some permissions
-        on it, some statistics (number of objects, size), number of dangling multipart uploads,
-        and its quotas (if any).
-      operationId: GetBucketInfo
-      parameters:
-      - description: "The exact bucket identifier, a 32 bytes hexadecimal string"
-        example: b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87
-        explode: false
-        in: path
-        name: bucket_id
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "500":
-          description: The server can not handle your request. Check your connectivity
-            with the rest of the cluster.
-        "404":
-          description: Bucket not found
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BucketInfo'
-          description: Returns exhaustive information about the bucket
-      summary: Get a bucket
-      tags:
-      - Bucket
     put:
       description: |
-        All fields (`websiteAccess` and `quotas`) are optionnal.
+        All fields (`websiteAccess` and `quotas`) are optional.
         If they are present, the corresponding modifications are applied to the bucket, otherwise nothing is changed.
 
         In `websiteAccess`: if `enabled` is `true`, `indexDocument` must be specified.
@@ -534,13 +593,13 @@ paths:
       parameters:
       - description: "The exact bucket identifier, a 32 bytes hexadecimal string"
         example: b4018dc61b27ccb5c64ec1b24f53454bbbd180697c758c4d47a22a8921864a87
-        explode: false
-        in: path
-        name: bucket_id
+        explode: true
+        in: query
+        name: id
         required: true
         schema:
           type: string
-        style: simple
+        style: form
       requestBody:
         content:
           application/json:
@@ -564,36 +623,6 @@ paths:
                 $ref: '#/components/schemas/BucketInfo'
           description: Returns exhaustive information about the bucket
       summary: Update a bucket
-      tags:
-      - Bucket
-  /bucket?globalAlias={alias}:
-    get:
-      description: |
-        Find a bucket by its global alias
-      operationId: FindBucketInfo
-      parameters:
-      - description: The exact global alias of one of the existing buckets
-        example: my_documents
-        explode: false
-        in: path
-        name: alias
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "500":
-          description: The server can not handle your request. Check your connectivity
-            with the rest of the cluster.
-        "404":
-          description: Bucket not found
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BucketInfo'
-          description: Returns exhaustive information about the bucket
-      summary: Find a bucket
       tags:
       - Bucket
   /bucket/allow:
@@ -846,13 +875,16 @@ components:
   schemas:
     NodeNetworkInfo:
       properties:
+        id:
+          example: 6a8e08af2aab1083ebab9b22165ea8b5b9d333b60a39ecd504e85cc1f432c36f
+          type: string
         addr:
           example: 10.0.0.11:3901
           type: string
-        is_up:
+        isUp:
           example: true
           type: boolean
-        last_seen_secs_ago:
+        lastSeenSecsAgo:
           example: 9
           nullable: true
           type: integer
@@ -862,22 +894,17 @@ components:
       required:
       - addr
       - hostname
-      - is_up
-      - last_seen_secs_ago
+      - isUp
+      - lastSeenSecsAgo
       type: object
     NodeClusterInfo:
-      example:
-        zone: dc1
-        capacity: 4
-        tags:
-        - gateway
-        - fast
       properties:
         zone:
           example: dc1
           type: string
         capacity:
           example: 4
+          format: int64
           nullable: true
           type: integer
         tags:
@@ -890,61 +917,107 @@ components:
             type: string
           type: array
       required:
+      - id
+      - tags
+      - zone
+      type: object
+    NodeRoleChange:
+      oneOf:
+      - $ref: '#/components/schemas/NodeRoleRemove'
+      - $ref: '#/components/schemas/NodeRoleUpdate'
+    NodeRoleRemove:
+      properties:
+        id:
+          example: 6a8e08af2aab1083ebab9b22165ea8b5b9d333b60a39ecd504e85cc1f432c36f
+          type: string
+        remove:
+          example: true
+          type: boolean
+      required:
+      - id
+      - remove
+      type: object
+    NodeRoleUpdate:
+      properties:
+        id:
+          example: 6a8e08af2aab1083ebab9b22165ea8b5b9d333b60a39ecd504e85cc1f432c36f
+          type: string
+        zone:
+          example: dc1
+          type: string
+        capacity:
+          example: 150000000000
+          format: int64
+          nullable: true
+          type: integer
+        tags:
+          example:
+          - gateway
+          - fast
+          items:
+            type: string
+          type: array
+      required:
       - capacity
+      - id
       - tags
       - zone
       type: object
     ClusterLayout:
       example:
         roles:
-          ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-            zone: madrid
-            capacity: 3
-            tags:
-            - fast
-            - amd64
-          "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-            zone: geneva
-            capacity: 7
-            tags:
-            - arm64
+        - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+          zone: madrid
+          capacity: 300000000000
+          tags:
+          - fast
+          - amd64
+        - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+          zone: geneva
+          capacity: 700000000000
+          tags:
+          - arm64
         stagedRoleChanges:
-          e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-            zone: geneva
-            capacity: 4
-            tags:
-            - gateway
+        - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+          zone: geneva
+          capacity: 800000000000
+          tags:
+          - gateway
+        - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+          remove: true
         version: 12
       properties:
         version:
           example: 12
           type: integer
         roles:
-          additionalProperties:
-            $ref: '#/components/schemas/NodeClusterInfo'
           example:
-            ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-              zone: madrid
-              capacity: 3
-              tags:
-              - fast
-              - amd64
-            "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-              zone: geneva
-              capacity: 7
-              tags:
-              - arm64
-          type: object
+          - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+            zone: madrid
+            capacity: 300000000000
+            tags:
+            - fast
+            - amd64
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            zone: geneva
+            capacity: 700000000000
+            tags:
+            - arm64
+          items:
+            $ref: '#/components/schemas/NodeClusterInfo'
+          type: array
         stagedRoleChanges:
-          additionalProperties:
-            $ref: '#/components/schemas/NodeClusterInfo'
           example:
-            e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-              zone: geneva
-              capacity: 4
-              tags:
-              - gateway
-          type: object
+          - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+            zone: geneva
+            capacity: 800000000000
+            tags:
+            - gateway
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            remove: true
+          items:
+            $ref: '#/components/schemas/NodeRoleChange'
+          type: array
       required:
       - roles
       - stagedRoleChanges
@@ -957,6 +1030,8 @@ components:
         version:
           example: 13
           type: integer
+      required:
+      - version
       type: object
     KeyInfo:
       example:
@@ -997,6 +1072,7 @@ components:
           type: string
         secretAccessKey:
           example: b892c0665f0ada8a4755dae98baa3b133590e11dae3bcc1f9d769d67f16c3835
+          nullable: true
           type: string
         permissions:
           $ref: '#/components/schemas/KeyInfo_permissions'
@@ -1096,80 +1172,169 @@ components:
             type: string
           type: array
       type: object
+    GetHealth_200_response:
+      example:
+        storageNodesOk: 3
+        partitions: 256
+        partitionsQuorum: 256
+        knownNodes: 4
+        connectedNodes: 4
+        storageNodes: 3
+        partitionsAllOk: 256
+        status: healthy
+      properties:
+        status:
+          example: healthy
+          type: string
+        knownNodes:
+          example: 4
+          format: int64
+          type: integer
+        connectedNodes:
+          example: 4
+          format: int64
+          type: integer
+        storageNodes:
+          example: 3
+          format: int64
+          type: integer
+        storageNodesOk:
+          example: 3
+          format: int64
+          type: integer
+        partitions:
+          example: 256
+          format: int64
+          type: integer
+        partitionsQuorum:
+          example: 256
+          format: int64
+          type: integer
+        partitionsAllOk:
+          example: 256
+          format: int64
+          type: integer
+      required:
+      - connectedNodes
+      - knownNodes
+      - partitions
+      - partitionsAllOk
+      - partitionsQuorum
+      - status
+      - storageNodes
+      - storageNodesOk
+      type: object
     GetNodes_200_response:
       example:
         layout:
           roles:
-            ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-              zone: madrid
-              capacity: 3
-              tags:
-              - fast
-              - amd64
-            "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-              zone: geneva
-              capacity: 7
-              tags:
-              - arm64
+          - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+            zone: madrid
+            capacity: 300000000000
+            tags:
+            - fast
+            - amd64
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            zone: geneva
+            capacity: 700000000000
+            tags:
+            - arm64
           stagedRoleChanges:
-            e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-              zone: geneva
-              capacity: 4
-              tags:
-              - gateway
+          - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+            zone: geneva
+            capacity: 800000000000
+            tags:
+            - gateway
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            remove: true
           version: 12
         node: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+        dbEngine: LMDB (using Heed crate)
+        rustVersion: 1.68.0
         knownNodes:
-          ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-            addr: 10.0.0.11:3901
-            is_up: true
-            last_seen_secs_ago: 9
-            hostname: orion
-          "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-            addr: 10.0.0.12:3901
-            is_up: true
-            last_seen_secs_ago: 13
-            hostname: pegasus
-          e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-            addr: 10.0.0.13:3901
-            is_up: true
-            last_seen_secs_ago: 2
-            hostname: neptune
-        garageVersion: v0.7.3
+        - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+          addr: 10.0.0.11:3901
+          isUp: true
+          lastSeenSecsAgo: 9
+          hostname: orion
+        - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+          addr: 10.0.0.12:3901
+          isUp: true
+          lastSeenSecsAgo: 13
+          hostname: pegasus
+        - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+          addr: 10.0.0.13:3901
+          isUp: true
+          lastSeenSecsAgo: 2
+          hostname: neptune
+        garageFeatures:
+        - k2v
+        - sled
+        - lmdb
+        - sqlite
+        - consul-discovery
+        - kubernetes-discovery
+        - metrics
+        - telemetry-otlp
+        - bundled-libs
+        garageVersion: v0.9.0
       properties:
         node:
           example: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
           type: string
         garageVersion:
-          example: v0.7.3
+          example: v0.9.0
+          type: string
+        garageFeatures:
+          example:
+          - k2v
+          - sled
+          - lmdb
+          - sqlite
+          - consul-discovery
+          - kubernetes-discovery
+          - metrics
+          - telemetry-otlp
+          - bundled-libs
+          items:
+            type: string
+          type: array
+        rustVersion:
+          example: 1.68.0
+          type: string
+        dbEngine:
+          example: LMDB (using Heed crate)
           type: string
         knownNodes:
-          additionalProperties:
-            $ref: '#/components/schemas/NodeNetworkInfo'
           example:
-            ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f:
-              addr: 10.0.0.11:3901
-              is_up: true
-              last_seen_secs_ago: 9
-              hostname: orion
-            "4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff":
-              addr: 10.0.0.12:3901
-              is_up: true
-              last_seen_secs_ago: 13
-              hostname: pegasus
-            e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b:
-              addr: 10.0.0.13:3901
-              is_up: true
-              last_seen_secs_ago: 2
-              hostname: neptune
-          type: object
+          - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+            addr: 10.0.0.11:3901
+            isUp: true
+            lastSeenSecsAgo: 9
+            hostname: orion
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            addr: 10.0.0.12:3901
+            isUp: true
+            lastSeenSecsAgo: 13
+            hostname: pegasus
+          - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+            addr: 10.0.0.13:3901
+            isUp: true
+            lastSeenSecsAgo: 2
+            hostname: neptune
+          items:
+            $ref: '#/components/schemas/NodeNetworkInfo'
+          type: array
         layout:
           $ref: '#/components/schemas/ClusterLayout'
       required:
+      - dbEngine
+      - garageFeatures
       - garageVersion
       - knownNodes
       - layout
       - node
+      - rustVersion
       type: object
     AddNode_200_response_inner:
       properties:
@@ -1180,6 +1345,76 @@ components:
           nullable: true
           type: string
           example: null
+      type: object
+    ApplyLayout_200_response:
+      example:
+        layout:
+          roles:
+          - id: ec79480e0ce52ae26fd00c9da684e4fa56658d9c64cdcecb094e936de0bfe71f
+            zone: madrid
+            capacity: 300000000000
+            tags:
+            - fast
+            - amd64
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            zone: geneva
+            capacity: 700000000000
+            tags:
+            - arm64
+          stagedRoleChanges:
+          - id: e2ee7984ee65b260682086ec70026165903c86e601a4a5a501c1900afe28d84b
+            zone: geneva
+            capacity: 800000000000
+            tags:
+            - gateway
+          - id: 4a6ae5a1d0d33bf895f5bb4f0a418b7dc94c47c0dd2eb108d1158f3c8f60b0ff
+            remove: true
+          version: 12
+        message:
+        - ==== COMPUTATION OF A NEW PARTITION ASSIGNATION ====
+        - ""
+        - Partitions are replicated 1 times on at least 1 distinct zones.
+        - ""
+        - "Optimal partition size:                     419.4 MB (3 B in previous layout)"
+        - "Usable capacity / total cluster capacity:   107.4 GB / 107.4 GB (100.0\
+          \ %)"
+        - "Effective capacity (replication factor 1):  107.4 GB"
+        - ""
+        - A total of 0 new copies of partitions need to be transferred.
+        - ""
+        - |+
+          dc1                 Tags  Partitions        Capacity  Usable capacity
+            6a8e08af2aab1083  a,v   256 (0 new)       107.4 GB  107.4 GB (100.0%)
+            TOTAL                   256 (256 unique)  107.4 GB  107.4 GB (100.0%)
+
+      properties:
+        message:
+          example:
+          - ==== COMPUTATION OF A NEW PARTITION ASSIGNATION ====
+          - ""
+          - Partitions are replicated 1 times on at least 1 distinct zones.
+          - ""
+          - "Optimal partition size:                     419.4 MB (3 B in previous\
+            \ layout)"
+          - "Usable capacity / total cluster capacity:   107.4 GB / 107.4 GB (100.0\
+            \ %)"
+          - "Effective capacity (replication factor 1):  107.4 GB"
+          - ""
+          - A total of 0 new copies of partitions need to be transferred.
+          - ""
+          - |+
+            dc1                 Tags  Partitions        Capacity  Usable capacity
+              6a8e08af2aab1083  a,v   256 (0 new)       107.4 GB  107.4 GB (100.0%)
+              TOTAL                   256 (256 unique)  107.4 GB  107.4 GB (100.0%)
+
+          items:
+            type: string
+          type: array
+        layout:
+          $ref: '#/components/schemas/ClusterLayout'
+      required:
+      - layout
+      - message
       type: object
     ListKeys_200_response_inner:
       properties:
@@ -1194,6 +1429,7 @@ components:
       properties:
         name:
           example: test-key
+          nullable: true
           type: string
       type: object
     UpdateKey_request_allow:
@@ -1223,6 +1459,7 @@ components:
       properties:
         name:
           example: test-key
+          nullable: true
           type: string
         accessKeyId:
           example: GK31c2f218a2e44f485b94239e
@@ -1260,6 +1497,38 @@ components:
       required:
       - id
       type: object
+    UpdateBucket_request_websiteAccess:
+      properties:
+        enabled:
+          example: true
+          type: boolean
+        indexDocument:
+          example: index.html
+          type: string
+        errorDocument:
+          example: error/400.html
+          type: string
+      type: object
+    UpdateBucket_request_quotas:
+      properties:
+        maxSize:
+          example: 19029801
+          format: int64
+          nullable: true
+          type: integer
+        maxObjects:
+          format: int64
+          nullable: true
+          type: integer
+          example: null
+      type: object
+    UpdateBucket_request:
+      properties:
+        websiteAccess:
+          $ref: '#/components/schemas/UpdateBucket_request_websiteAccess'
+        quotas:
+          $ref: '#/components/schemas/UpdateBucket_request_quotas'
+      type: object
     CreateBucket_request_localAlias_allow:
       example:
         owner: true
@@ -1292,38 +1561,6 @@ components:
           type: string
         localAlias:
           $ref: '#/components/schemas/CreateBucket_request_localAlias'
-      type: object
-    UpdateBucket_request_websiteAccess:
-      properties:
-        enabled:
-          example: true
-          type: boolean
-        indexDocument:
-          example: index.html
-          type: string
-        errorDocument:
-          example: error/400.html
-          type: string
-      type: object
-    UpdateBucket_request_quotas:
-      properties:
-        maxSize:
-          example: 19029801
-          format: int64
-          nullable: true
-          type: integer
-        maxObjects:
-          format: int64
-          nullable: true
-          type: integer
-          example: null
-      type: object
-    UpdateBucket_request:
-      properties:
-        websiteAccess:
-          $ref: '#/components/schemas/UpdateBucket_request_websiteAccess'
-        quotas:
-          $ref: '#/components/schemas/UpdateBucket_request_quotas'
       type: object
     AllowBucketKey_request_permissions:
       properties:
