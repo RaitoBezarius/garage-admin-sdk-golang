@@ -124,7 +124,7 @@ func (o *GetHealth200Response) SetConnectedNodes(v int64) {
 }
 
 // GetStorageNodes returns the StorageNodes field value
-func (o *GetHealth200Response) GetStorageNodesAll() int64 {
+func (o *GetHealth200Response) GetStorageNodes() int64 {
 	if o == nil {
 		var ret int64
 		return ret
@@ -135,7 +135,7 @@ func (o *GetHealth200Response) GetStorageNodesAll() int64 {
 
 // GetStorageNodesOk returns a tuple with the StorageNodes field value
 // and a boolean to check if the value has been set.
-func (o *GetHealth200Response) GetStorageNodesAllOk() (*int64, bool) {
+func (o *GetHealth200Response) GetStorageNodesOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
